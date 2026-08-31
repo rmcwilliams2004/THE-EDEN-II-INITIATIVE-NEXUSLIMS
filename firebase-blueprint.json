@@ -1,0 +1,94 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user of the NexusLIMS platform.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "User's email address"
+        },
+        "name": {
+          "type": "string",
+          "description": "User's display name"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp of account creation"
+        }
+      },
+      "required": ["email", "name", "createdAt"]
+    },
+    "TelemetryPoint": {
+      "title": "TelemetryPoint",
+      "description": "A telemetry record from an edge node.",
+      "type": "object",
+      "properties": {
+        "nodeId": {
+          "type": "string",
+          "description": "The ID of the edge node"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "ISO timestamp of the reading"
+        },
+        "metrics": {
+          "type": "object",
+          "description": "The collected metrics"
+        }
+      },
+      "required": ["nodeId", "timestamp", "metrics"]
+    },
+    "VcmLedgerEntry": {
+      "title": "VcmLedgerEntry",
+      "description": "An immutable record of VCM credit minting.",
+      "type": "object",
+      "properties": {
+        "nodeId": {
+          "type": "string",
+          "description": "The ID of the edge node"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "ISO timestamp of the event"
+        },
+        "hash": {
+          "type": "string",
+          "description": "Cryptographic hash of the telemetry batch"
+        },
+        "metrics": {
+          "type": "object",
+          "description": "The metrics that triggered the minting"
+        },
+        "creditMinted": {
+          "type": "number",
+          "description": "The amount of NXT credits minted"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the ledger entry"
+        },
+        "userId": {
+          "type": "string",
+          "description": "The UID of the user who owns this record"
+        }
+      },
+      "required": ["nodeId", "timestamp", "hash", "metrics", "creditMinted", "status", "userId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profiles"
+    },
+    "/telemetry/{telemetryId}": {
+      "schema": { "$ref": "#/entities/TelemetryPoint" },
+      "description": "Global telemetry points stream"
+    },
+    "/users/{userId}/vcm_ledger/{entryId}": {
+      "schema": { "$ref": "#/entities/VcmLedgerEntry" },
+      "description": "VCM ledger entries for a specific user"
+    }
+  }
+}
