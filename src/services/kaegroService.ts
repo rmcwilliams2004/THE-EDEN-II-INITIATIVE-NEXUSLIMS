@@ -14,12 +14,19 @@ export class KaegroService {
    */
   static async getSoilProfile(lat: number, lon: number) {
     try {
+      const parsedLat = parseFloat(lat as any);
+      const parsedLon = parseFloat(lon as any);
+
+      if (isNaN(parsedLat) || isNaN(parsedLon)) {
+        throw new Error(`[KaegroService] Invalid coordinates provided: lat=${lat}, lon=${lon}`);
+      }
+
       const response = await axios.get(`${KAEGRO_BASE_URL}/farms/api/soil`, {
-        params: { lat, lon }
+        params: { lat: parsedLat, lon: parsedLon }
       });
       return response.data;
     } catch (error) {
-      console.error('[KaegroService] Error fetching soil profile:', error);
+      console.error('[KaegroService] Error fetching soil profile:', error?.response?.data || error);
       throw error;
     }
   }

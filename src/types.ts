@@ -5,15 +5,38 @@ export interface User {
   role: Role;
   name: string;
   location: string;
+  country?: string;
   avatarUrl: string;
 }
 
+export type HardwareStatus = 'ONLINE' | 'WARNING' | 'OFFLINE' | 'SYNCING';
+
 export interface HardwareNode {
   id: string;
+  name?: string;
   ownerId: string;
-  status: 'ONLINE' | 'OFFLINE' | 'SYNCING';
+  country?: string;
+  region?: string;
+  coordinates?: [number, number]; // [longitude, latitude]
+  elevationMeters?: number;
+  cropFocus?: string;
+  status: HardwareStatus;
   firmwareVer: string;
   uptime: number;
+  agronomyProfileId?: string;
+  specs?: {
+    mcu: string;
+    firmware: string;
+    network: string;
+    power: string;
+    installed: string;
+  };
+  metrics?: {
+    ph: number;
+    pressure: number;
+    temp: number;
+    moisturePercent?: number;
+  };
 }
 
 export interface SisterLink {

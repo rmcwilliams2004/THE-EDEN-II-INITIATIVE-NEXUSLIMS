@@ -19,7 +19,8 @@ export const VoiceAssistant = () => {
     try {
       setStatus('CONNECTING');
       
-      const ws = new WebSocket(`ws://${window.location.host}/live`);
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const ws = new WebSocket(`${protocol}//${window.location.host}/live`);
       wsRef.current = ws;
 
       const outputCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });

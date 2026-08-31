@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MOCK_FEED, currentUser } from './data';
+import { MOCK_FEED, currentUser, MOCK_HARDWARE_NODES } from './data';
 import { FeedPost } from './components/FeedPost';
 import { HardwareStatusWidget } from './components/HardwareStatusWidget';
 import { TelemetryDashboard } from './components/TelemetryDashboard';
@@ -65,13 +65,33 @@ function Sidebar({ activeTab, setActiveTab }: { activeTab: string, setActiveTab:
           </button>
         </nav>
 
-        <div className="mt-4 flex-1 overflow-hidden">
-          <div className="text-[10px] text-slate-500 uppercase mb-2">Node Tree (Edge Compute)</div>
-          <div className="space-y-2 text-sm telemetry-font text-slate-400">
-            <div className="flex items-center gap-2"><span className="dot bg-emerald-500"></span>US-CAL-01-EDEN</div>
-            <div className="flex items-center gap-2"><span className="dot bg-emerald-500"></span>KE-NBI-04-COOP</div>
-            <div className="flex items-center gap-2"><span className="dot bg-amber-500 animate-pulse"></span>ID-JKT-12-EDEN</div>
-            <div className="flex items-center gap-2 opacity-50"><span className="dot bg-slate-600"></span>BR-SP-09-COOP</div>
+        <div className="mt-4 flex-1 overflow-hidden flex flex-col">
+          <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-2 flex items-center justify-between">
+            <span>Global Node Fleet</span>
+            <span className="text-emerald-400 font-mono text-[9px]">{MOCK_HARDWARE_NODES.length} Active</span>
+          </div>
+          <div className="space-y-1.5 text-xs telemetry-font text-slate-400 overflow-y-auto custom-scrollbar flex-1 pb-4 pr-1">
+            {MOCK_HARDWARE_NODES.map(node => (
+              <div 
+                key={node.id} 
+                className="flex items-center justify-between p-1.5 rounded hover:bg-slate-900/60 transition-colors group cursor-default"
+                title={`${node.name} (${node.country})`}
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <span className={`dot ${
+                    node.status === 'ONLINE' ? 'bg-emerald-500' :
+                    node.status === 'WARNING' ? 'bg-amber-500 animate-pulse' :
+                    'bg-slate-600'
+                  }`} />
+                  <span className="font-mono text-[11px] text-slate-300 group-hover:text-emerald-300 truncate">
+                    {node.id}
+                  </span>
+                </div>
+                <span className="text-[9px] text-slate-500 uppercase font-sans shrink-0 ml-1">
+                  {node.country?.slice(0, 3).toUpperCase()}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -142,7 +162,7 @@ export default function App() {
           </div>
           <h1 className="text-xl font-bold tracking-tight">
             NEXUS<span className="text-emerald-400">LIMS</span>
-            <span className="text-slate-500 font-normal text-sm ml-2 hidden sm:inline">/ PRINCIPAL_ARCHITECT_CONSOLE</span>
+            <span className="text-slate-500 font-normal text-sm ml-2 hidden sm:inline">/ Eden II Micro-DGA Container</span>
           </h1>
         </div>
         <div className="flex items-center gap-8">

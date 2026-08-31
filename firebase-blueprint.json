@@ -75,6 +75,34 @@
         }
       },
       "required": ["nodeId", "timestamp", "hash", "metrics", "creditMinted", "status", "userId"]
+    },
+    "AgronomyProfile": {
+      "title": "AgronomyProfile",
+      "description": "Cached baseline soil and agronomy metrics for a geographic coordinate or hardware node.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier of the agronomy profile document" },
+        "nodeId": { "type": "string", "description": "Associated hardware node ID if applicable" },
+        "lat": { "type": "number", "description": "Latitude coordinate" },
+        "lon": { "type": "number", "description": "Longitude coordinate" },
+        "faoClassification": { "type": "string", "description": "FAO soil classification" },
+        "phBaseline": { "type": "number", "description": "Baseline soil pH (H2O)" },
+        "cecRatio": { "type": "number", "description": "Cation Exchange Capacity (cmol(+)/kg)" },
+        "soilMoistureIndex": { "type": "number", "description": "Calculated soil moisture index" },
+        "electricalConductivity": { "type": "number", "description": "Electrical conductivity in dS/m" },
+        "bulkDensity": { "type": "number", "description": "Bulk density in g/cm3" },
+        "soilComposition": {
+          "type": "object",
+          "description": "Soil texture components (sand, silt, clay, organic carbon)"
+        },
+        "nutrients": {
+          "type": "object",
+          "description": "Macronutrient content (N, P, K)"
+        },
+        "lastSyncedAt": { "type": "string", "description": "Server timestamp of last sync" },
+        "source": { "type": "string", "description": "Data provider source" }
+      },
+      "required": ["id", "lat", "lon", "phBaseline", "cecRatio", "soilComposition", "nutrients"]
     }
   },
   "firestore": {
@@ -89,6 +117,10 @@
     "/users/{userId}/vcm_ledger/{entryId}": {
       "schema": { "$ref": "#/entities/VcmLedgerEntry" },
       "description": "VCM ledger entries for a specific user"
+    },
+    "/agronomy_profiles/{profileId}": {
+      "schema": { "$ref": "#/entities/AgronomyProfile" },
+      "description": "Cached agronomy soil profiles"
     }
   }
 }
