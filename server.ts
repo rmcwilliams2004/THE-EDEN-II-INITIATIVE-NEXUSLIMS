@@ -6,6 +6,7 @@ import { createServer as createViteServer } from 'vite';
 import crypto from 'crypto';
 import path from 'path';
 import { GoogleGenAI, LiveServerMessage, Modality, GenerateVideosOperation } from '@google/genai';
+import { EdenEdgeDaemon, EdenNodeTelemetryPacket, TelemetryBatch } from './src/services/edenEdgeDaemon';
 
 // Initialize Gemini API
 const ai = new GoogleGenAI({
@@ -17,10 +18,11 @@ const ai = new GoogleGenAI({
   }
 });
 
-// Using a simple in-memory data store for this demonstration.
-// In production, this would be TimescaleDB (for telemetry) and PostgreSQL (for VCM Ledger).
+// In-memory data store for demonstration (TimescaleDB / dMRV VCM Ledger)
 const vcmLedger: any[] = [];
 let telemetryHistory: any[] = [];
+let edgeBatchesHistory: TelemetryBatch[] = [];
+let latestEdgePacket: EdenNodeTelemetryPacket | null = null;
 
 async function startServer() {
   const app = express();
@@ -202,10 +204,93 @@ async function startServer() {
 
   // --- End Gemini Endpoints ---
 
+  // Initialize Eden II Edge Controller Daemon
+  const edgeDaemon = new EdenEdgeDaemon({
+    nodeId: 'US-CAL-01-EDEN',
+    pollIntervalMs: 1000,
+    batchIntervalMs: 5000,
+    centralPlatformEndpoint: 'http://localhost:3000/api/telemetry/ingest'
+  });
+
+  edgeDaemon.on('sample', (packet: EdenNodeTelemetryPacket) => {
+    latestEdgePacket = packet;
+    io.emit('edge_sample', packet);
+  });
+
+  edgeDaemon.on('batch_created', (batch: TelemetryBatch) => {
+    edgeBatchesHistory.unshift(batch);
+    if (edgeBatchesHistory.length > 50) {
+      edgeBatchesHistory.pop();
+    }
+    io.emit('edge_batch', batch);
+  });
+
+  edgeDaemon.on('failsafe_tripped', (tripEvent: any) => {
+    io.emit('maintenance_alert', {
+      id: crypto.randomUUID(),
+      nodeId: edgeDaemon.nodeId,
+      timestamp: tripEvent.timestamp,
+      severity: 'CRITICAL',
+      message: tripEvent.reasons.join(' | '),
+      type: 'SIL3_HARDWARE_INTERLOCK'
+    });
+  });
+
+  edgeDaemon.start();
+
+  // --- Edge Controller Daemon APIs ---
+
+  // Get current edge controller status, sensor readings, and SIL-3 interlocks
+  app.get('/api/edge/status', (req, res) => {
+    res.json({
+      status: edgeDaemon.getStatus(),
+      latestPacket: latestEdgePacket,
+      recentBatches: edgeBatchesHistory.slice(0, 10),
+    });
+  });
+
+  // Fetch recent 5-second hashed batches for EcoCreditX dMRV
+  app.get('/api/edge/batches', (req, res) => {
+    res.json(edgeBatchesHistory);
+  });
+
+  // Inject simulation events for hardware & safety verification
+  app.post('/api/edge/simulate', (req, res) => {
+    const { action, value } = req.body;
+    switch (action) {
+      case 'PRESSURE_SPIKE':
+        edgeDaemon.triggerPressureAnomaly(value || 638.0);
+        res.json({ success: true, message: 'Simulating hydraulic intensifier pressure spike above 620 Bar.' });
+        break;
+      case 'HYDROGEN_LEAK':
+        edgeDaemon.triggerHydrogenLeak(value || 14.2);
+        res.json({ success: true, message: 'Simulating optical hydrogen sensor breach (>10% LEL).' });
+        break;
+      case 'FOLIAR_DRIFT':
+        edgeDaemon.triggerFoliarRatioError();
+        res.json({ success: true, message: 'Simulated foliar ratio drift. Solenoid locked.' });
+        break;
+      case 'RESET_SAFETY':
+        edgeDaemon.resetSafetyActuators();
+        res.json({ success: true, message: 'SIL-3 safety interlocks and actuators reset to nominal.' });
+        break;
+      default:
+        res.status(400).json({ error: `Unknown simulation action: ${action}` });
+    }
+  });
+
   // Remote Control / MQTT Command Endpoint
   app.post('/api/node/command', (req, res) => {
     const { nodeId, command } = req.body;
     const timestamp = new Date().toISOString();
+
+    if (command === 'SHUTDOWN' || command === 'OVERRIDE') {
+      if (command === 'SHUTDOWN') {
+        edgeDaemon.triggerHydrogenLeak(12.0); // Triggers immediate safe isolation
+      } else if (command === 'OVERRIDE') {
+        edgeDaemon.resetSafetyActuators();
+      }
+    }
     
     // Simulate MQTT transmission delay
     setTimeout(() => {
@@ -220,7 +305,7 @@ async function startServer() {
       });
       
       res.json({ success: true, message: `MQTT command ${command} delivered to ${nodeId}/rx` });
-    }, 1500);
+    }, 1000);
   });
 
   // 1. VCM Minting & Telemetry Ingestion API (ACID Simulation)

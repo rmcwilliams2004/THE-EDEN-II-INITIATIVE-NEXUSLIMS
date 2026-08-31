@@ -5,11 +5,14 @@ import {
   MOCK_AGRONOMY_PROFILES, 
   generateMockTelemetryForNode 
 } from '../data';
-import { Sprout, Globe, Activity, Layers, Droplets, Flame, Gauge } from 'lucide-react';
+import { Sprout, Globe, Activity, Layers, Droplets, Flame, Gauge, ShieldCheck, ShieldAlert, Cpu } from 'lucide-react';
+import { EdgeControllerPanel } from './EdgeControllerPanel';
+import { SIL3SafetyFailsafe } from './SIL3SafetyFailsafe';
 
 export const TelemetryDashboard = ({ liveData }: { liveData: any[] }) => {
   const [selectedNodeId, setSelectedNodeId] = useState<string>('US-CAL-01-EDEN');
   const [timeRange, setTimeRange] = useState<'LIVE' | '1H' | '24H'>('LIVE');
+  const [activeSubView, setActiveSubView] = useState<'TELEMETRY_CHARTS' | 'SIL3_SAFETY' | 'DAEMON_LOGS'>('SIL3_SAFETY');
 
   const selectedNode = useMemo(() => {
     return MOCK_HARDWARE_NODES.find(n => n.id === selectedNodeId) || MOCK_HARDWARE_NODES[0];
@@ -74,157 +77,213 @@ export const TelemetryDashboard = ({ liveData }: { liveData: any[] }) => {
             ))}
           </select>
 
-          <div className="flex gap-1 text-xs">
+          {/* Sub-View Selector */}
+          <div className="flex gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800">
             <button
-              onClick={() => setTimeRange('LIVE')}
-              className={`px-3 py-1.5 rounded transition-colors text-xs font-bold ${
-                timeRange === 'LIVE' 
-                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' 
-                  : 'bg-slate-900/60 text-slate-400 border border-slate-800 hover:text-slate-200'
+              onClick={() => setActiveSubView('SIL3_SAFETY')}
+              className={`px-3 py-1 rounded text-xs font-bold transition-colors flex items-center gap-1.5 ${
+                activeSubView === 'SIL3_SAFETY'
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              Live
+              <ShieldCheck className="w-3.5 h-3.5" />
+              SIL-3 Safety & Failsafe
             </button>
             <button
-              onClick={() => setTimeRange('1H')}
-              className={`px-3 py-1.5 rounded transition-colors text-xs font-bold ${
-                timeRange === '1H' 
-                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' 
-                  : 'bg-slate-900/60 text-slate-400 border border-slate-800 hover:text-slate-200'
+              onClick={() => setActiveSubView('TELEMETRY_CHARTS')}
+              className={`px-3 py-1 rounded text-xs font-bold transition-colors flex items-center gap-1.5 ${
+                activeSubView === 'TELEMETRY_CHARTS'
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              1H
+              <Activity className="w-3.5 h-3.5" />
+              Telemetry Waveforms
             </button>
             <button
-              onClick={() => setTimeRange('24H')}
-              className={`px-3 py-1.5 rounded transition-colors text-xs font-bold ${
-                timeRange === '24H' 
-                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' 
-                  : 'bg-slate-900/60 text-slate-400 border border-slate-800 hover:text-slate-200'
+              onClick={() => setActiveSubView('DAEMON_LOGS')}
+              className={`px-3 py-1 rounded text-xs font-bold transition-colors flex items-center gap-1.5 ${
+                activeSubView === 'DAEMON_LOGS'
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              24H
+              <Cpu className="w-3.5 h-3.5" />
+              Edge Controller
             </button>
           </div>
         </div>
       </div>
 
-      {/* Regional In-Situ Baseline Banner */}
-      {agronomyProfile && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="glass p-3 rounded-lg border border-slate-800">
-            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-slate-400 mb-1">
-              <Sprout className="w-3.5 h-3.5 text-emerald-400" />
-              <span>FAO Soil Base</span>
-            </div>
-            <div className="text-xs font-bold text-slate-200 truncate">{agronomyProfile.faoClassification}</div>
-          </div>
-
-          <div className="glass p-3 rounded-lg border border-slate-800">
-            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-slate-400 mb-1">
-              <Layers className="w-3.5 h-3.5 text-purple-400" />
-              <span>CEC Baseline</span>
-            </div>
-            <div className="text-xs font-bold text-purple-300 font-mono">{agronomyProfile.cecRatio.toFixed(1)} cmol(+)/kg</div>
-          </div>
-
-          <div className="glass p-3 rounded-lg border border-slate-800">
-            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-slate-400 mb-1">
-              <Droplets className="w-3.5 h-3.5 text-blue-400" />
-              <span>Volumetric Moisture</span>
-            </div>
-            <div className="text-xs font-bold text-blue-300 font-mono">{agronomyProfile.soilMoistureIndex.toFixed(1)}%</div>
-          </div>
-
-          <div className="glass p-3 rounded-lg border border-slate-800">
-            <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-slate-400 mb-1">
-              <Gauge className="w-3.5 h-3.5 text-amber-400" />
-              <span>Electrical Cond. (EC)</span>
-            </div>
-            <div className="text-xs font-bold text-amber-300 font-mono">{agronomyProfile.electricalConductivity.toFixed(2)} dS/m</div>
-          </div>
-        </div>
+      {/* Sub-View: 1. Dedicated SIL-3 Safety & Failsafe Interlock View */}
+      {activeSubView === 'SIL3_SAFETY' && (
+        <SIL3SafetyFailsafe nodeId={selectedNodeId} />
       )}
 
-      {/* Chart Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* Pressure Chart */}
-        <div className="glass p-4 rounded-xl h-80 flex flex-col">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs uppercase tracking-widest text-purple-400 font-bold">
-              Hydraulic Chamber Pressure (BAR)
-            </h3>
-            <span className="text-[10px] text-slate-500 font-mono">Range: 550 - 650 BAR</span>
+      {/* Sub-View: 2. Telemetry Waveform Charts */}
+      {activeSubView === 'TELEMETRY_CHARTS' && (
+        <>
+          {/* Time range selector for charts */}
+          <div className="flex justify-end items-center gap-2">
+            <span className="text-[11px] text-slate-400">Aggregation Window:</span>
+            <div className="flex gap-1 text-xs">
+              <button
+                onClick={() => setTimeRange('LIVE')}
+                className={`px-3 py-1.5 rounded transition-colors text-xs font-bold ${
+                  timeRange === 'LIVE' 
+                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' 
+                    : 'bg-slate-900/60 text-slate-400 border border-slate-800 hover:text-slate-200'
+                }`}
+              >
+                Live
+              </button>
+              <button
+                onClick={() => setTimeRange('1H')}
+                className={`px-3 py-1.5 rounded transition-colors text-xs font-bold ${
+                  timeRange === '1H' 
+                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' 
+                    : 'bg-slate-900/60 text-slate-400 border border-slate-800 hover:text-slate-200'
+                }`}
+              >
+                1H
+              </button>
+              <button
+                onClick={() => setTimeRange('24H')}
+                className={`px-3 py-1.5 rounded transition-colors text-xs font-bold ${
+                  timeRange === '24H' 
+                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' 
+                    : 'bg-slate-900/60 text-slate-400 border border-slate-800 hover:text-slate-200'
+                }`}
+              >
+                24H
+              </button>
+            </div>
           </div>
-          <div className="flex-1">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                <XAxis dataKey="time" stroke="#475569" fontSize={10} tickMargin={10} />
-                <YAxis stroke="#475569" fontSize={10} domain={['auto', 'auto']} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', fontSize: '12px' }}
-                  itemStyle={{ color: '#c084fc' }}
-                />
-                <Line type="monotone" dataKey="Pressure" stroke="#c084fc" strokeWidth={2} dot={false} isAnimationActive={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
 
-        {/* Temperature Chart */}
-        <div className="glass p-4 rounded-xl h-80 flex flex-col">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs uppercase tracking-widest text-amber-400 font-bold">
-              Pyrolysis Reactor Core Temp (°C)
-            </h3>
-            <span className="text-[10px] text-slate-500 font-mono">Nominal: 350°C - 420°C</span>
-          </div>
-          <div className="flex-1">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                <XAxis dataKey="time" stroke="#475569" fontSize={10} tickMargin={10} />
-                <YAxis stroke="#475569" fontSize={10} domain={['auto', 'auto']} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', fontSize: '12px' }}
-                  itemStyle={{ color: '#fbbf24' }}
-                />
-                <Line type="monotone" dataKey="Temperature" stroke="#fbbf24" strokeWidth={2} dot={false} isAnimationActive={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+          {/* Regional In-Situ Baseline Banner */}
+          {agronomyProfile && (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="glass p-3 rounded-lg border border-slate-800">
+                <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-slate-400 mb-1">
+                  <Sprout className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>FAO Soil Base</span>
+                </div>
+                <div className="text-xs font-bold text-slate-200 truncate">{agronomyProfile.faoClassification}</div>
+              </div>
 
-        {/* pH Chart (Full Width) */}
-        <div className="glass p-4 rounded-xl h-80 flex flex-col lg:col-span-2">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs uppercase tracking-widest text-emerald-400 font-bold flex items-center gap-2">
-              <Sprout className="w-4 h-4" />
-              Soil & Reactor pH Baseline Tracking
-            </h3>
-            {agronomyProfile && (
-              <span className="text-[10px] text-emerald-400/90 font-mono">
-                Agronomic Baseline: {agronomyProfile.phBaseline.toFixed(1)} pH
-              </span>
-            )}
+              <div className="glass p-3 rounded-lg border border-slate-800">
+                <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-slate-400 mb-1">
+                  <Layers className="w-3.5 h-3.5 text-purple-400" />
+                  <span>CEC Baseline</span>
+                </div>
+                <div className="text-xs font-bold text-purple-300 font-mono">{agronomyProfile.cecRatio.toFixed(1)} cmol(+)/kg</div>
+              </div>
+
+              <div className="glass p-3 rounded-lg border border-slate-800">
+                <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-slate-400 mb-1">
+                  <Droplets className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Volumetric Moisture</span>
+                </div>
+                <div className="text-xs font-bold text-blue-300 font-mono">{agronomyProfile.soilMoistureIndex.toFixed(1)}%</div>
+              </div>
+
+              <div className="glass p-3 rounded-lg border border-slate-800">
+                <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-slate-400 mb-1">
+                  <Gauge className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Electrical Cond. (EC)</span>
+                </div>
+                <div className="text-xs font-bold text-amber-300 font-mono">{agronomyProfile.electricalConductivity.toFixed(2)} dS/m</div>
+              </div>
+            </div>
+          )}
+
+          {/* Chart Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {/* Pressure Chart */}
+            <div className="glass p-4 rounded-xl h-80 flex flex-col">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xs uppercase tracking-widest text-purple-400 font-bold">
+                  Hydraulic Chamber Pressure (BAR)
+                </h3>
+                <span className="text-[10px] text-slate-500 font-mono">Range: 550 - 650 BAR</span>
+              </div>
+              <div className="flex-1">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                    <XAxis dataKey="time" stroke="#475569" fontSize={10} tickMargin={10} />
+                    <YAxis stroke="#475569" fontSize={10} domain={['auto', 'auto']} />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', fontSize: '12px' }}
+                      itemStyle={{ color: '#c084fc' }}
+                    />
+                    <Line type="monotone" dataKey="Pressure" stroke="#c084fc" strokeWidth={2} dot={false} isAnimationActive={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Temperature Chart */}
+            <div className="glass p-4 rounded-xl h-80 flex flex-col">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xs uppercase tracking-widest text-amber-400 font-bold">
+                  Pyrolysis Reactor Core Temp (°C)
+                </h3>
+                <span className="text-[10px] text-slate-500 font-mono">Nominal: 350°C - 420°C</span>
+              </div>
+              <div className="flex-1">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                    <XAxis dataKey="time" stroke="#475569" fontSize={10} tickMargin={10} />
+                    <YAxis stroke="#475569" fontSize={10} domain={['auto', 'auto']} />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', fontSize: '12px' }}
+                      itemStyle={{ color: '#fbbf24' }}
+                    />
+                    <Line type="monotone" dataKey="Temperature" stroke="#fbbf24" strokeWidth={2} dot={false} isAnimationActive={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* pH Chart (Full Width) */}
+            <div className="glass p-4 rounded-xl h-80 flex flex-col lg:col-span-2">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xs uppercase tracking-widest text-emerald-400 font-bold flex items-center gap-2">
+                  <Sprout className="w-4 h-4" />
+                  Soil & Reactor pH Baseline Tracking
+                </h3>
+                {agronomyProfile && (
+                  <span className="text-[10px] text-emerald-400/90 font-mono">
+                    Agronomic Baseline: {agronomyProfile.phBaseline.toFixed(1)} pH
+                  </span>
+                )}
+              </div>
+              <div className="flex-1">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                    <XAxis dataKey="time" stroke="#475569" fontSize={10} tickMargin={10} />
+                    <YAxis stroke="#475569" fontSize={10} domain={[4, 9]} />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', fontSize: '12px' }}
+                      itemStyle={{ color: '#34d399' }}
+                    />
+                    <Line type="stepAfter" dataKey="pH" stroke="#34d399" strokeWidth={2} dot={false} isAnimationActive={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
-          <div className="flex-1">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                <XAxis dataKey="time" stroke="#475569" fontSize={10} tickMargin={10} />
-                <YAxis stroke="#475569" fontSize={10} domain={[4, 9]} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', fontSize: '12px' }}
-                  itemStyle={{ color: '#34d399' }}
-                />
-                <Line type="stepAfter" dataKey="pH" stroke="#34d399" strokeWidth={2} dot={false} isAnimationActive={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
+        </>
+      )}
+
+      {/* Sub-View: 3. Embedded SIL-3 Industrial Edge Controller Daemon Panel */}
+      {activeSubView === 'DAEMON_LOGS' && (
+        <EdgeControllerPanel />
+      )}
     </div>
   );
 };

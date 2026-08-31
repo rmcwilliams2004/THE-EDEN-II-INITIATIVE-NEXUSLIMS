@@ -9,7 +9,10 @@ import { VoiceAssistant } from './components/VoiceAssistant';
 import { VideoGenerator } from './components/VideoGenerator';
 import { AudioTranscription } from './components/AudioTranscription';
 import { MapsInsight } from './components/MapsInsight';
-import { Hexagon, LayoutGrid, Users, Video, Settings, Sprout, Bell, Map, Mic, LogIn, LogOut } from 'lucide-react';
+import { KioskSimulatorView } from './components/KioskSimulatorView';
+import { OnboardingCalculatorView } from './components/OnboardingCalculatorView';
+import { EcoCreditXView } from './components/EcoCreditXView';
+import { Hexagon, LayoutGrid, Users, Video, Settings, Sprout, Bell, Map, Mic, LogIn, LogOut, Calculator, Award, Radio } from 'lucide-react';
 import { io } from 'socket.io-client';
 import { auth, signInWithGoogle, logout } from './lib/firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
@@ -37,7 +40,25 @@ function Sidebar({ activeTab, setActiveTab }: { activeTab: string, setActiveTab:
             onClick={() => setActiveTab('DASHBOARD')}
             className={`w-full flex items-center gap-3 p-3 rounded transition-colors font-medium text-sm ${activeTab === 'DASHBOARD' ? 'bg-slate-900/50 border-l-2 border-emerald-500 text-emerald-400' : 'text-slate-400 hover:text-slate-100 hover:bg-slate-900/50'}`}>
             <LayoutGrid className="w-4 h-4" />
-            Live Telemetry
+            Live Telemetry & SIL-3
+          </button>
+          <button 
+            onClick={() => setActiveTab('KIOSK')}
+            className={`w-full flex items-center gap-3 p-3 rounded transition-colors font-medium text-sm ${activeTab === 'KIOSK' ? 'bg-slate-900/50 border-l-2 border-emerald-500 text-emerald-400' : 'text-slate-400 hover:text-slate-100 hover:bg-slate-900/50'}`}>
+            <Radio className="w-4 h-4" />
+            20-ft Sister Kiosk (Voice/NFC)
+          </button>
+          <button 
+            onClick={() => setActiveTab('ONBOARDING')}
+            className={`w-full flex items-center gap-3 p-3 rounded transition-colors font-medium text-sm ${activeTab === 'ONBOARDING' ? 'bg-slate-900/50 border-l-2 border-emerald-500 text-emerald-400' : 'text-slate-400 hover:text-slate-100 hover:bg-slate-900/50'}`}>
+            <Calculator className="w-4 h-4" />
+            Section 179 & Grants
+          </button>
+          <button 
+            onClick={() => setActiveTab('ECOCREDITX')}
+            className={`w-full flex items-center gap-3 p-3 rounded transition-colors font-medium text-sm ${activeTab === 'ECOCREDITX' ? 'bg-slate-900/50 border-l-2 border-emerald-500 text-emerald-400' : 'text-slate-400 hover:text-slate-100 hover:bg-slate-900/50'}`}>
+            <Award className="w-4 h-4" />
+            EcoCreditX Hedera dMRV
           </button>
           <button 
             onClick={() => setActiveTab('VCM')}
@@ -212,6 +233,24 @@ export default function App() {
           {activeTab === 'DASHBOARD' && (
             <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
               <TelemetryDashboard liveData={liveData} />
+            </div>
+          )}
+
+          {activeTab === 'KIOSK' && (
+            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+              <KioskSimulatorView />
+            </div>
+          )}
+
+          {activeTab === 'ONBOARDING' && (
+            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+              <OnboardingCalculatorView />
+            </div>
+          )}
+
+          {activeTab === 'ECOCREDITX' && (
+            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+              <EcoCreditXView />
             </div>
           )}
 
