@@ -43,15 +43,18 @@ async function startServer() {
     clientWs.on("message", async (data: any) => {
       const msg = JSON.parse(data.toString());
       
-      // Allow the client to initialize with a target language
+      // Allow the client to initialize with a target language & localized system instruction
       if (msg.type === 'init') {
-        targetLangCode = msg.targetLanguageCode || "en";
+        const locale = msg.locale || msg.targetLanguageCode || "en-US";
+        const systemPrompt = msg.systemInstruction || 
+          `CRITICAL DIRECTIVE: You are physically located in region [${locale}]. You must instantly adapt all spoken audio responses, dialect comprehension, and idiom usage to the primary language of this locale. Do not speak English unless explicitly addressed in English.\n\nYou are a real-time agricultural translator and agronomist assistant for the Eden II modular container system. Translate everything accurately or answer agronomy questions in the locale language.`;
+        
         try {
           session = await ai.live.connect({
             model: "gemini-3.1-flash-live-preview",
             config: {
               responseModalities: [Modality.AUDIO],
-              systemInstruction: `You are a real-time agricultural translator and agronomist assistant. The user wants to communicate in ${targetLangCode}. Translate everything perfectly or answer their agronomy questions in their language.`,
+              systemInstruction: systemPrompt,
             },
             callbacks: {
               onmessage: (message: LiveServerMessage) => {

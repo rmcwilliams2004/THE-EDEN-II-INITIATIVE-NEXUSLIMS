@@ -893,7 +893,7 @@ export const MOCK_GLOBAL_USERS: Record<string, User> = {
     name: 'Punjab AgriTech Coop',
     location: 'Punjab, India',
     country: 'India',
-    avatarUrl: 'https://images.unsplash.com/photo-1598462083656-74cf8f8df4b3?auto=format&fit=crop&q=80&w=150&h=150',
+    avatarUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=150&h=150',
   },
   u_004: {
     id: 'u_004',
@@ -901,7 +901,7 @@ export const MOCK_GLOBAL_USERS: Record<string, User> = {
     name: 'Fazenda Boa Vista',
     location: 'Mato Grosso, Brazil',
     country: 'Brazil',
-    avatarUrl: 'https://images.unsplash.com/photo-1535090467336-9501f96eec89?auto=format&fit=crop&q=80&w=150&h=150',
+    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150&h=150',
   },
   u_005: {
     id: 'u_005',
@@ -909,7 +909,7 @@ export const MOCK_GLOBAL_USERS: Record<string, User> = {
     name: 'Westland Innovations',
     location: 'Westland, Netherlands',
     country: 'Netherlands',
-    avatarUrl: 'https://images.unsplash.com/photo-1581579186913-46aa3ba9fef0?auto=format&fit=crop&q=80&w=150&h=150',
+    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150&h=150',
   },
   u_006: {
     id: 'u_006',

@@ -30,7 +30,7 @@ export const userIndia: User = {
   role: 'COOPERATIVE_MANAGER',
   name: 'Punjab AgriTech Coop',
   location: 'Punjab, India',
-  avatarUrl: 'https://images.unsplash.com/photo-1598462083656-74cf8f8df4b3?auto=format&fit=crop&q=80&w=150&h=150',
+  avatarUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=150&h=150',
 };
 
 export const userBrazil: User = {
@@ -38,7 +38,7 @@ export const userBrazil: User = {
   role: 'COMMERCIAL_GROWER',
   name: 'Fazenda Boa Vista',
   location: 'Mato Grosso, Brazil',
-  avatarUrl: 'https://images.unsplash.com/photo-1535090467336-9501f96eec89?auto=format&fit=crop&q=80&w=150&h=150',
+  avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150&h=150',
 };
 
 export const userNetherlands: User = {
@@ -46,7 +46,7 @@ export const userNetherlands: User = {
   role: 'AGRONOMIST',
   name: 'Westland Innovations',
   location: 'Westland, Netherlands',
-  avatarUrl: 'https://images.unsplash.com/photo-1581579186913-46aa3ba9fef0?auto=format&fit=crop&q=80&w=150&h=150',
+  avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150&h=150',
 };
 
 export const userAustralia: User = {
@@ -61,8 +61,8 @@ export const MOCK_FEED: MediaPost[] = [
   {
     id: 'post_1',
     authorId: 'u_002',
-    imageUrl: 'https://images.unsplash.com/photo-1592982537447-6f296d9b15d2?auto=format&fit=crop&q=80&w=1200',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1592982537447-6f296d9b15d2?auto=format&fit=crop&q=80&w=600',
+    imageUrl: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80&w=1200',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80&w=600',
     description: 'Morning harvest update! The new Eden II container has stabilized our soil pH perfectly. Biogas pressure looks solid.',
     createdAt: new Date(Date.now() - 1000 * 60 * 45).toISOString(), // 45 mins ago
     likes: 124,
@@ -137,8 +137,8 @@ export const MOCK_FEED: MediaPost[] = [
   {
     id: 'post_5',
     authorId: 'u_005',
-    imageUrl: 'https://images.unsplash.com/photo-1585408660995-1f6305a468d6?auto=format&fit=crop&q=80&w=1200',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1585408660995-1f6305a468d6?auto=format&fit=crop&q=80&w=600',
+    imageUrl: 'https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?auto=format&fit=crop&q=80&w=1200',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?auto=format&fit=crop&q=80&w=600',
     description: 'Indoor greenhouse climate control optimized for tomato production. Edge node predicting yield peaks.',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4.5).toISOString(), // 4.5 hours ago
     likes: 412,
@@ -170,6 +170,63 @@ export const MOCK_FEED: MediaPost[] = [
       pressureBar: 612.0,
       temperatureC: 28.7,
       moisturePercent: 62,
+    },
+  },
+  {
+    id: 'post_7',
+    authorId: 'u_008',
+    imageUrl: 'https://images.unsplash.com/photo-1560493676-04071c5f467b?auto=format&fit=crop&q=80&w=1200',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1560493676-04071c5f467b?auto=format&fit=crop&q=80&w=600',
+    description: 'Eldoret sister cooperative maize foliar micro-dosing completed. 20-ft kiosk telemetry indicates zero nitrogen runoff.',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 7.5).toISOString(),
+    likes: 198,
+    comments: 16,
+    telemetrySnapshot: {
+      id: 'tel_7',
+      nodeId: 'KE-ELD-02-EDEN',
+      timestamp: new Date().toISOString(),
+      phLevel: 5.9,
+      pressureBar: 595.0,
+      temperatureC: 37.5,
+      moisturePercent: 39,
+    },
+  },
+  {
+    id: 'post_8',
+    authorId: 'u_011',
+    imageUrl: 'https://images.unsplash.com/photo-1516253593875-bd7ba052fbc5?auto=format&fit=crop&q=80&w=1200',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1516253593875-bd7ba052fbc5?auto=format&fit=crop&q=80&w=600',
+    description: 'Subak heritage terrace partner update: Automated low-pressure foliar dosing engaged for organic red rice fields.',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 9).toISOString(),
+    likes: 276,
+    comments: 29,
+    telemetrySnapshot: {
+      id: 'tel_8',
+      nodeId: 'ID-BAL-03-COOP',
+      timestamp: new Date().toISOString(),
+      phLevel: 6.6,
+      pressureBar: 590.0,
+      temperatureC: 38.8,
+      moisturePercent: 72,
+    },
+  },
+  {
+    id: 'post_9',
+    authorId: 'u_016',
+    imageUrl: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?auto=format&fit=crop&q=80&w=1200',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?auto=format&fit=crop&q=80&w=600',
+    description: 'Antioquia shade coffee collective: Sister-link foliar dispenser stabilized acidity across 45 smallholder plots.',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 11).toISOString(),
+    likes: 312,
+    comments: 38,
+    telemetrySnapshot: {
+      id: 'tel_9',
+      nodeId: 'CO-MED-05-COOP',
+      timestamp: new Date().toISOString(),
+      phLevel: 5.3,
+      pressureBar: 585.0,
+      temperatureC: 37.2,
+      moisturePercent: 60,
     },
   }
 ];

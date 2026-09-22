@@ -5,14 +5,16 @@ import {
   MOCK_AGRONOMY_PROFILES, 
   generateMockTelemetryForNode 
 } from '../data';
-import { Sprout, Globe, Activity, Layers, Droplets, Flame, Gauge, ShieldCheck, ShieldAlert, Cpu } from 'lucide-react';
+import { Sprout, Globe, Activity, Layers, Droplets, Flame, Gauge, ShieldCheck, ShieldAlert, Cpu, Hexagon, Tablet, Compass } from 'lucide-react';
 import { EdgeControllerPanel } from './EdgeControllerPanel';
 import { SIL3SafetyFailsafe } from './SIL3SafetyFailsafe';
+import { IndustrialTouchscreenDashboard } from './touchscreen/IndustrialTouchscreenDashboard';
+import { FarmCommandDashboard } from './farmcommand/FarmCommandDashboard';
 
 export const TelemetryDashboard = ({ liveData }: { liveData: any[] }) => {
   const [selectedNodeId, setSelectedNodeId] = useState<string>('US-CAL-01-EDEN');
   const [timeRange, setTimeRange] = useState<'LIVE' | '1H' | '24H'>('LIVE');
-  const [activeSubView, setActiveSubView] = useState<'TELEMETRY_CHARTS' | 'SIL3_SAFETY' | 'DAEMON_LOGS'>('SIL3_SAFETY');
+  const [activeSubView, setActiveSubView] = useState<'FARM_COMMAND' | 'TOUCHSCREEN_HMI' | 'SIL3_SAFETY' | 'TELEMETRY_CHARTS' | 'DAEMON_LOGS'>('FARM_COMMAND');
 
   const selectedNode = useMemo(() => {
     return MOCK_HARDWARE_NODES.find(n => n.id === selectedNodeId) || MOCK_HARDWARE_NODES[0];
@@ -78,7 +80,29 @@ export const TelemetryDashboard = ({ liveData }: { liveData: any[] }) => {
           </select>
 
           {/* Sub-View Selector */}
-          <div className="flex gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800">
+          <div className="flex flex-wrap gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800">
+            <button
+              onClick={() => setActiveSubView('FARM_COMMAND')}
+              className={`px-3 py-1 rounded text-xs font-bold transition-colors flex items-center gap-1.5 ${
+                activeSubView === 'FARM_COMMAND'
+                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Tablet className="w-3.5 h-3.5 text-emerald-400" />
+              Farm Command (Tablet)
+            </button>
+            <button
+              onClick={() => setActiveSubView('TOUCHSCREEN_HMI')}
+              className={`px-3 py-1 rounded text-xs font-bold transition-colors flex items-center gap-1.5 ${
+                activeSubView === 'TOUCHSCREEN_HMI'
+                  ? 'bg-orange-500/20 text-orange-400 border border-orange-500/50 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Hexagon className="w-3.5 h-3.5 text-orange-400" />
+              Eden II Touchscreen HMI
+            </button>
             <button
               onClick={() => setActiveSubView('SIL3_SAFETY')}
               className={`px-3 py-1 rounded text-xs font-bold transition-colors flex items-center gap-1.5 ${
@@ -115,6 +139,16 @@ export const TelemetryDashboard = ({ liveData }: { liveData: any[] }) => {
           </div>
         </div>
       </div>
+
+      {/* Sub-View: 0. Farm Command Agronomic Tablet Dashboard */}
+      {activeSubView === 'FARM_COMMAND' && (
+        <FarmCommandDashboard />
+      )}
+
+      {/* Sub-View: 0.1 Eden II Node #042 Touchscreen HMI Panel */}
+      {activeSubView === 'TOUCHSCREEN_HMI' && (
+        <IndustrialTouchscreenDashboard nodeId="EDEN II NODE #042" />
+      )}
 
       {/* Sub-View: 1. Dedicated SIL-3 Safety & Failsafe Interlock View */}
       {activeSubView === 'SIL3_SAFETY' && (

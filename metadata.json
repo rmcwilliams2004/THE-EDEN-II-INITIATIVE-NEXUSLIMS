@@ -2,7 +2,8 @@
   "name": "NexusLIMS",
   "description": "Feeders of the World - Global agricultural telemetry and Sister-Link social network.",
   "requestFramePermissions": [
-    "microphone"
+    "microphone",
+    "geolocation"
   ],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

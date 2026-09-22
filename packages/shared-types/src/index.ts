@@ -5,7 +5,7 @@
 export type UserRole = 'SUPER_ADMIN' | 'ENTERPRISE_ADMIN' | 'NGO_COORDINATOR' | 'AGRONOMIST' | 'FARMER';
 export type NodeType = 'COMMERCIAL_40FT' | 'HUMANITARIAN_20FT';
 export type NodeStatus = 'ONLINE' | 'OFFLINE' | 'MAINTENANCE' | 'EMERGENCY_STOP' | 'PURGING';
-export type CropType = 'MAIZE' | 'COFFEE' | 'WHEAT' | 'CORN' | 'SOYBEAN' | 'CUSTOM';
+export type CropType = 'MAIZE' | 'COFFEE' | 'WHEAT' | 'CORN' | 'SOYBEAN' | 'POTATOES' | 'CASSAVA' | 'RICE' | 'SUGARCANE' | 'CUSTOM';
 export type TokenStatus = 'PENDING' | 'MINTED' | 'RETIRED' | 'TRADED';
 
 export interface PressureSensorReadings {
