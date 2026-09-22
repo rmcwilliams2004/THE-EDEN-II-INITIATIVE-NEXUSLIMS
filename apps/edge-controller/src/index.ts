@@ -1,6 +1,14 @@
 import { SensorDriverEngine } from './drivers/sensors';
+import { AlkalineDosingPumpDriver } from './drivers/alkalineDosingPump';
 import { SIL3FailsafeEngine } from './safety/sil3Failsafe';
+import { FoliarDilutionGovernor } from './safety/foliarDilution';
+import { ToxicGasScrubberGovernor } from './safety/wetScrubber';
 import { TelemetryHasherEngine, TelemetryBatchFrame } from './telemetry/hasher';
+
+export * from './drivers/alkalineDosingPump';
+export * from './safety/foliarDilution';
+export * from './safety/sil3Failsafe';
+export * from './safety/wetScrubber';
 
 export interface EdgeDaemonConfig {
   nodeId: string;
@@ -11,7 +19,10 @@ export interface EdgeDaemonConfig {
 
 export class EdgeControllerApp {
   private sensorDriver = new SensorDriverEngine();
+  private alkalineDosingPump = new AlkalineDosingPumpDriver();
   private sil3Engine = new SIL3FailsafeEngine();
+  private foliarGovernor = new FoliarDilutionGovernor();
+  private scrubberGovernor = new ToxicGasScrubberGovernor();
   private hasher: TelemetryHasherEngine;
   private pollInterval?: NodeJS.Timeout;
   private batchInterval?: NodeJS.Timeout;
@@ -27,6 +38,16 @@ export class EdgeControllerApp {
     this.pollInterval = setInterval(() => {
       const snapshot = this.sensorDriver.getFullSnapshot();
       const safety = this.sil3Engine.evaluate(snapshot);
+      
+      // SIF 2 Autonomous Edge Toxic Gas Scrubber Evaluation
+      this.scrubberGovernor.evaluateSensors({
+        sensorA_ppm: snapshot.ammonia.ambientPpm,
+        sensorB_ppm: snapshot.ammonia.ambientPpm,
+        sensorA_healthy: true,
+        sensorB_healthy: true,
+        channelDiscrepancy: false,
+      });
+
       this.hasher.addSample(snapshot, safety);
     }, this.config.pollRateMs || 1000);
 
@@ -51,6 +72,18 @@ export class EdgeControllerApp {
 
   public getSafety() {
     return this.sil3Engine;
+  }
+
+  public getFoliarGovernor() {
+    return this.foliarGovernor;
+  }
+
+  public getScrubberGovernor() {
+    return this.scrubberGovernor;
+  }
+
+  public getAlkalineDosingPump() {
+    return this.alkalineDosingPump;
   }
 }
 

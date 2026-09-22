@@ -32,6 +32,8 @@ import {
 import { SemiCircularGauge } from './SemiCircularGauge';
 import { HorizontalProgressBar } from './HorizontalProgressBar';
 import { VerticalLiquidTank } from './VerticalLiquidTank';
+import { AtmosphericWidget } from './AtmosphericWidget';
+import { WeatherRadioPlayer } from './WeatherRadioPlayer';
 import { useLanguage } from '../../context/LanguageContext';
 
 export interface NodeConfiguration {
@@ -104,8 +106,8 @@ export const IndustrialTouchscreenDashboard: React.FC<IndustrialTouchscreenDashb
   // 2. Draft Configuration State for Form editing
   const [draftConfig, setDraftConfig] = useState<NodeConfiguration>(committedConfig);
 
-  // 3. UI View Mode: 'MONITOR' (Live Telemetry) or 'CONFIGURE' (Setpoints & Recipe Form)
-  const [viewMode, setViewMode] = useState<'MONITOR' | 'CONFIGURE'>('MONITOR');
+  // 3. UI View Mode: 'MONITOR' (Live Telemetry), 'ATMOSPHERIC' (Weather & ET0), 'WEATHER_RADIO' (Live Voice Radio), or 'CONFIGURE' (Setpoints & Recipe Form)
+  const [viewMode, setViewMode] = useState<'MONITOR' | 'ATMOSPHERIC' | 'WEATHER_RADIO' | 'CONFIGURE'>('MONITOR');
 
   // 4. Live Telemetry States (reflecting active setpoints with subtle ADC noise)
   const [catalystTemp, setCatalystTemp] = useState(committedConfig.catalystTempTarget);
@@ -346,7 +348,7 @@ export const IndustrialTouchscreenDashboard: React.FC<IndustrialTouchscreenDashb
 
         {/* Center / Right: Mode Switcher & Status Indicators */}
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-between md:justify-end">
-          {/* View Mode Toggle: Live Telemetry vs Configuration Form */}
+          {/* View Mode Toggle: Live Telemetry vs Atmospheric Weather vs Configuration Form */}
           <div className="flex items-center p-1 rounded-xl bg-gray-950 border border-gray-800">
             <button
               id="btn-tab-monitor"
@@ -359,6 +361,30 @@ export const IndustrialTouchscreenDashboard: React.FC<IndustrialTouchscreenDashb
             >
               <Activity className="w-3.5 h-3.5" />
               TELEMETRY
+            </button>
+            <button
+              id="btn-tab-atmospheric"
+              onClick={() => setViewMode('ATMOSPHERIC')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                viewMode === 'ATMOSPHERIC'
+                  ? 'bg-emerald-500 text-black shadow-md'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Droplets className="w-3.5 h-3.5" />
+              ATMOSPHERIC & ET0
+            </button>
+            <button
+              id="btn-tab-weather-radio"
+              onClick={() => setViewMode('WEATHER_RADIO')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                viewMode === 'WEATHER_RADIO'
+                  ? 'bg-purple-500 text-white shadow-md'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Radio className="w-3.5 h-3.5" />
+              VOICE RADIO
             </button>
             <button
               id="btn-tab-configure"
@@ -566,7 +592,32 @@ export const IndustrialTouchscreenDashboard: React.FC<IndustrialTouchscreenDashb
         </main>
       )}
 
-      {/* 2B. MODE B: REFACTORED INDUSTRIAL CONFIGURATION & CALIBRATION FORM */}
+      {/* 2B. MODE B: ATMOSPHERIC TELEMETRY & OPEN-METEO WEATHER ENGINE */}
+      {viewMode === 'ATMOSPHERIC' && (
+        <main className="w-full space-y-4">
+          <AtmosphericWidget
+            nodeId={nodeId}
+            onAnnounceAlert={(text) => {
+              showToast(`SPEECH SYNTHESIS: ${text}`, 'info');
+              if (onActionTrigger) onActionTrigger(`ANNOUNCE_WEATHER: ${text}`);
+            }}
+          />
+        </main>
+      )}
+
+      {/* 2C. MODE C: WEATHER VOICE TRANSLATION & RESILIENT BROADCAST ENGINE */}
+      {viewMode === 'WEATHER_RADIO' && (
+        <main className="w-full space-y-4">
+          <WeatherRadioPlayer
+            onAnnounceAlert={(text) => {
+              showToast(`RADIO ADVISORY: ${text}`, 'info');
+              if (onActionTrigger) onActionTrigger(`BROADCAST_ADVISORY: ${text}`);
+            }}
+          />
+        </main>
+      )}
+
+      {/* 2D. MODE D: REFACTORED INDUSTRIAL CONFIGURATION & CALIBRATION FORM */}
       {viewMode === 'CONFIGURE' && (
         <form
           id="form-node-configuration"

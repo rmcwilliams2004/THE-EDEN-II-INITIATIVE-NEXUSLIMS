@@ -41,6 +41,7 @@ import {
 } from 'lucide-react';
 import { SoilPhGauge } from './SoilPhGauge';
 import { SmartAlertModal, SmartAlertItem, DEFAULT_ALERTS } from './SmartAlertModal';
+import { AgriNewsTicker } from './AgriNewsTicker';
 import { useNavigation } from '../../context/NavigationContext';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -483,10 +484,13 @@ export const FarmCommandDashboard: React.FC<FarmCommandDashboardProps> = ({
 
       {/* VIEW 1: HOME (Dual Column: Map + Fertigation Controller) */}
       {activeBottomTab === 'HOME' && (
-        <main className="p-4 sm:p-5 grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-          
-          {/* Left Column: Interactive Map Area (60% width -> 7 cols on lg screen) */}
-          <section className="lg:col-span-7 flex flex-col rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden relative min-h-[400px] shadow-lg">
+        <main className="p-4 sm:p-5 flex flex-col gap-5">
+          {/* Real-time Regional Agronomic & Weather Advisory Ticker */}
+          <AgriNewsTicker />
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+            {/* Left Column: Interactive Map Area (60% width -> 7 cols on lg screen) */}
+            <section className="lg:col-span-7 flex flex-col rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden relative min-h-[400px] shadow-lg">
             
             {/* Top Floating Layer Selector Bar */}
             <div className="absolute top-3 left-3 z-30 flex items-center gap-1.5 bg-slate-950/90 backdrop-blur-md p-1 rounded-xl border border-slate-700/80 shadow-xl text-xs">
@@ -926,6 +930,7 @@ export const FarmCommandDashboard: React.FC<FarmCommandDashboardProps> = ({
 
           </section>
 
+          </div>
         </main>
       )}
 

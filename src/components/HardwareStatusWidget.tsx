@@ -25,7 +25,7 @@ export const HardwareStatusWidget = () => {
       <div className="space-y-4">
         <div>
           <div className="flex justify-between text-[10px] text-slate-400 mb-1 uppercase">
-            <span>HYDRAULIC_PRESSURE</span>
+            <span>HYDRAULIC PRESSURE</span>
             <span className="telemetry-font text-emerald-400">600 BAR</span>
           </div>
           <div className="w-full h-1 bg-slate-800 rounded-full"><div className="h-full bg-emerald-500 w-[90%] glow-green"></div></div>
@@ -33,7 +33,7 @@ export const HardwareStatusWidget = () => {
         
         <div>
           <div className="flex justify-between text-[10px] text-slate-400 mb-1 uppercase">
-            <span>REACTOR_TEMP</span>
+            <span>REACTOR TEMP</span>
             <span className="telemetry-font text-amber-400">392.4 °C</span>
           </div>
           <div className="w-full h-1 bg-slate-800 rounded-full"><div className="h-full bg-amber-500 w-[75%] shadow-[0_0_15px_rgba(245,158,11,0.2)]"></div></div>
@@ -41,7 +41,7 @@ export const HardwareStatusWidget = () => {
 
         <div>
           <div className="flex justify-between text-[10px] text-slate-400 mb-1 uppercase">
-            <span>SOIL_MOISTURE_IDX</span>
+            <span>SOIL MOISTURE IDX</span>
             <span className="telemetry-font text-blue-400">0.421</span>
           </div>
           <div className="w-full h-1 bg-slate-800 rounded-full"><div className="h-full bg-blue-500 w-[42%] shadow-[0_0_15px_rgba(59,130,246,0.2)]"></div></div>

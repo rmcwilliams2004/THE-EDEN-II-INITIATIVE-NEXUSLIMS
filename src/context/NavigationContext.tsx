@@ -9,6 +9,7 @@ export type NavigationTab =
   | 'ONBOARDING'
   | 'ECOCREDITX'
   | 'VCM'
+  | 'MARKET_NEWS'
   | 'ASSET_MAP'
   | 'VOICE_ASSISTANT'
   | 'VIDEO_GEN'
@@ -32,6 +33,7 @@ export const NAV_ITEMS: NavItemConfig[] = [
   { id: 'MAP', label: 'GIS Heatmap & Contours', shortLabel: 'GIS Heatmap', group: 'field' },
   { id: 'ANALYTICS', label: 'Soil & Crop Analytics', shortLabel: 'Crop Analytics', group: 'field' },
   { id: 'TOUCHSCREEN', label: 'Eden II Touchscreen HMI', shortLabel: 'HMI Touchscreen', group: 'field' },
+  { id: 'MARKET_NEWS', label: 'Market & Carbon Intelligence (Grounding)', shortLabel: 'Market Intel', badge: 'Live AI', group: 'compliance' },
   { id: 'ECOCREDITX', label: 'EcoCreditX Hedera dMRV', shortLabel: 'EcoCreditX', group: 'compliance' },
   { id: 'VCM', label: 'Carbon Credits (VCM)', shortLabel: 'Carbon VCM', group: 'compliance' },
   { id: 'ONBOARDING', label: 'Section 179 & Grants', shortLabel: 'Section 179', group: 'compliance' },

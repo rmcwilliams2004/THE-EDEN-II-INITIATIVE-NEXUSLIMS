@@ -7,6 +7,7 @@ import {
 import { useLanguage } from '../context/LanguageContext';
 import { useGeminiLive } from '../hooks/useGeminiLive';
 import { LanguageSelector } from './LanguageSelector';
+import { ModeBFoliarDispenser } from '../../apps/kiosk-ui/src/components/ModeBFoliarDispenser';
 
 export type CropType = 'maize' | 'coffee' | 'wheat' | 'soybean' | 'potatoes' | 'cassava' | 'rice' | 'sugarcane';
 
@@ -341,6 +342,9 @@ export const KioskSimulatorView: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Mode B Batch Foliar Dilution Station (SIL-3 Governed) */}
+      <ModeBFoliarDispenser />
     </div>
   );
 };

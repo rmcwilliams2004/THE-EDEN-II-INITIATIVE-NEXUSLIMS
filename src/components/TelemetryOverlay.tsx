@@ -6,7 +6,7 @@ export const TelemetryOverlay = ({ data }: { data: TelemetryLog }) => {
   return (
     <>
       <div className="absolute top-4 left-4 p-3 rounded bg-black/60 backdrop-blur-md border border-white/10 pointer-events-none">
-        <div className="text-[10px] text-slate-400 mb-1 tracking-widest">LIVE_TELEMETRY_OVERLAY</div>
+        <div className="text-[10px] text-slate-400 mb-1 tracking-widest">LIVE TELEMETRY OVERLAY</div>
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 telemetry-font text-xs">
           <div>PH: <span className="text-emerald-400">{data.phLevel.toFixed(1)}</span></div>
           <div>TEMP: <span className="text-amber-400">{data.temperatureC.toFixed(1)}°C</span></div>

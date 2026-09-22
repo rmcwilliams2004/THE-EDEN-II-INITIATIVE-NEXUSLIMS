@@ -17,7 +17,10 @@ import { OnboardingCalculatorView } from './components/OnboardingCalculatorView'
 import { EcoCreditXView } from './components/EcoCreditXView';
 import { IndustrialTouchscreenDashboard } from './components/touchscreen/IndustrialTouchscreenDashboard';
 import { FarmCommandDashboard } from './components/farmcommand/FarmCommandDashboard';
+import { MarketIntelligenceNews } from './components/MarketIntelligenceNews';
 import { Sidebar } from './components/Sidebar';
+import { TopNavBar } from './components/TopNavBar';
+import { OnlineUserManualModal } from './components/OnlineUserManualModal';
 import { NavigationProvider, useNavigation, NavigationTab } from './context/NavigationContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { LanguageSelector } from './components/LanguageSelector';
@@ -38,6 +41,7 @@ function AppContent() {
   const [newPostDesc, setNewPostDesc] = useState('');
   const [newPostCrop, setNewPostCrop] = useState('MAIZE');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isUserManualOpen, setIsUserManualOpen] = useState(false);
 
   const triggerToast = (msg: string) => {
     setToastMessage(msg);
@@ -157,12 +161,15 @@ function AppContent() {
             </div>
             <div className="h-10 w-px bg-slate-800 hidden md:block"></div>
             <div className="text-right">
-              <div className="text-xs text-slate-400">SYSTEM_TIME</div>
+              <div className="text-xs text-slate-400">SYSTEM TIME</div>
               <div className="telemetry-font font-bold">{new Date().toISOString().replace('T', ' // ').substring(0, 23)} UTC</div>
             </div>
           </div>
         </div>
       </header>
+
+      {/* Top Navigation Bar: Categorized Dropdowns, Active Highlighting & Online User Manual */}
+      <TopNavBar onOpenUserManual={() => setIsUserManualOpen(true)} />
 
       <main className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 overflow-hidden">
         <Sidebar />
@@ -224,7 +231,7 @@ function AppContent() {
                     </button>
                   )}
                   <div className="text-[10px] text-slate-500 tracking-widest hidden sm:block font-mono">
-                    ENCRYPTED_SYNC_PULSE
+                    ENCRYPTED SYNC PULSE
                   </div>
                 </div>
               </div>
@@ -376,6 +383,12 @@ function AppContent() {
             </div>
           )}
 
+          {activeTab === 'MARKET_NEWS' && (
+            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar flex flex-col">
+              <MarketIntelligenceNews />
+            </div>
+          )}
+
           {activeTab === 'VCM' && (
             <div className="flex-1 overflow-hidden">
               <VcmLedger />
@@ -467,10 +480,16 @@ function AppContent() {
       </main>
 
       <footer className="h-8 flex items-center justify-between px-6 glass text-[10px] tracking-widest text-slate-500 shrink-0 hidden md:flex">
-        <div>SCHEMA_STATUS: <span className="text-emerald-400">PRISMA_V4_SYNCED</span> // REPLICA_LAG: 4ms</div>
-        <div>ASYNCHRONOUS PACKET QUEUE: 0 // EDGE_NODE: HEALTHY</div>
+        <div>SCHEMA STATUS: <span className="text-emerald-400">PRISMA V4 SYNCED</span> // REPLICA LAG: 4ms</div>
+        <div>ASYNCHRONOUS PACKET QUEUE: 0 // EDGE NODE: HEALTHY</div>
         <div>PLATFORM VERSION: 2.4.1-STABLE // BUILD: 0xA7F2</div>
       </footer>
+
+      {/* Online User Manual Modal */}
+      <OnlineUserManualModal
+        isOpen={isUserManualOpen}
+        onClose={() => setIsUserManualOpen(false)}
+      />
     </div>
   );
 }

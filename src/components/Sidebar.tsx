@@ -17,7 +17,8 @@ import {
   Layers,
   BarChart3,
   Droplets,
-  ChevronRight
+  ChevronRight,
+  Globe
 } from 'lucide-react';
 import { useNavigation, NavigationTab } from '../context/NavigationContext';
 import { auth, signInWithGoogle, logout } from '../lib/firebase';
@@ -42,6 +43,7 @@ export const Sidebar: React.FC = () => {
       case 'MAP': return <Droplets className="w-4 h-4 text-emerald-400" />;
       case 'ANALYTICS': return <BarChart3 className="w-4 h-4 text-emerald-400" />;
       case 'TOUCHSCREEN': return <Hexagon className="w-4 h-4 text-orange-400" />;
+      case 'MARKET_NEWS': return <Globe className="w-4 h-4 text-emerald-400" />;
       case 'ECOCREDITX': return <Award className="w-4 h-4 text-emerald-400" />;
       case 'VCM': return <Sprout className="w-4 h-4 text-emerald-400" />;
       case 'ONBOARDING': return <Calculator className="w-4 h-4 text-emerald-400" />;
