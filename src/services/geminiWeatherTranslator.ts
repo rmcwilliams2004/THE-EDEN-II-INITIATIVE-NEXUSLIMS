@@ -21,6 +21,13 @@ export interface TranslationLocale {
 
 export const SUPPORTED_BROADCAST_LOCALES: TranslationLocale[] = [
   {
+    code: 'en-US',
+    name: 'English (US / NOAA Standard)',
+    region: 'North America / Midwest Corn Belt',
+    dialectDescription: 'NOAA All Hazards broadcast style, clear and authoritative',
+    samplePhrases: ['NOAA Weather Radio station KEC63', 'High evapotranspiration advisory in effect'],
+  },
+  {
     code: 'sw-KE',
     name: 'Kiswahili (East Africa)',
     region: 'Kenya / Rift Valley & Lake Basin',
@@ -55,13 +62,6 @@ export const SUPPORTED_BROADCAST_LOCALES: TranslationLocale[] = [
     dialectDescription: 'Brazilian agricultural radio voice, clear and precise',
     samplePhrases: ['Boletim agrometeorológico da estação', 'Previsão de umidade do solo e vento'],
   },
-  {
-    code: 'en-US',
-    name: 'English (NOAA Standard)',
-    region: 'North America / Midwest Corn Belt',
-    dialectDescription: 'NOAA All Hazards broadcast style',
-    samplePhrases: ['NOAA Weather Radio station KEC63', 'High evapotranspiration advisory in effect'],
-  },
 ];
 
 export interface GeminiTranslatorConfig {
@@ -85,7 +85,7 @@ export class GeminiWeatherTranslator {
 
   constructor(config: GeminiTranslatorConfig = {}) {
     this.config = config;
-    this.locale = SUPPORTED_BROADCAST_LOCALES.find(l => l.code === (config.locale || 'sw-KE')) || SUPPORTED_BROADCAST_LOCALES[0];
+    this.locale = SUPPORTED_BROADCAST_LOCALES.find(l => l.code === (config.locale || 'en-US')) || SUPPORTED_BROADCAST_LOCALES[0];
     this.currentVolume = config.volume ?? 0.85;
   }
 

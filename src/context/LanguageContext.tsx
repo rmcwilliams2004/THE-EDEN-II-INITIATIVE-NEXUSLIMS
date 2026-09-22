@@ -366,9 +366,9 @@ export interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Start with default coordinates (East Africa Rift Valley)
-  const [gpsCoords, setGpsCoordsState] = useState<GpsCoordinates>(SUPPORTED_LOCALES['sw-KE'].defaultCoordinates);
-  const [locale, setLocaleState] = useState<string>('sw-KE');
+  // Start with default coordinates (North America / US English default)
+  const [gpsCoords, setGpsCoordsState] = useState<GpsCoordinates>(SUPPORTED_LOCALES['en-US'].defaultCoordinates);
+  const [locale, setLocaleState] = useState<string>('en-US');
   const [isLoadingLocation, setIsLoadingLocation] = useState<boolean>(true);
 
   // Derive locale profile from active locale code

@@ -179,14 +179,14 @@ export async function getDeviceCoordinates(): Promise<GpsCoordinates> {
           });
         },
         (error) => {
-          console.warn('Geolocation lookup skipped or denied, using Rift Valley default', error.message);
-          // Default to Nairobi / Rift Valley pilot location for Eden II container
-          resolve(SUPPORTED_LOCALES['sw-KE'].defaultCoordinates);
+          console.warn('Geolocation lookup skipped or denied, using US English default', error.message);
+          // Default to US English California/North America coordinates
+          resolve(SUPPORTED_LOCALES['en-US'].defaultCoordinates);
         },
         { timeout: 4000, maximumAge: 60000 }
       );
     } else {
-      resolve(SUPPORTED_LOCALES['sw-KE'].defaultCoordinates);
+      resolve(SUPPORTED_LOCALES['en-US'].defaultCoordinates);
     }
   });
 }
