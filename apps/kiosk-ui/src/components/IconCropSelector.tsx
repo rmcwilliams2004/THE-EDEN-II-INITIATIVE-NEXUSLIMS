@@ -1,7 +1,7 @@
 import React from 'react';
 import { Wheat, Coffee, Sprout, Trees, Apple, Flower2, Leaf, Sparkles } from 'lucide-react';
 
-export type CropIconKey = 'maize' | 'coffee' | 'wheat' | 'corn' | 'soybean' | 'potatoes' | 'cassava' | 'rice' | 'sugarcane';
+export type CropIconKey = 'maize' | 'coffee' | 'wheat' | 'corn' | 'soybean' | 'potatoes' | 'cassava' | 'rice' | 'sugarcane' | 'water_drop' | 'gallon_jug';
 
 interface IconCropSelectorProps {
   selectedCrop: CropIconKey;

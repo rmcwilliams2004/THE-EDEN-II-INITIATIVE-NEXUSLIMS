@@ -35,8 +35,15 @@ export const SUPPORTED_BROADCAST_LOCALES: TranslationLocale[] = [
     samplePhrases: ['Hali ya hewa kwa wakulima', 'Kiwango cha unyevu kinatarajiwa kupanda'],
   },
   {
-    code: 'es-MX',
+    code: 'es-CO',
     name: 'Español (América Latina)',
+    region: 'Andean Agri-Corridor / Colombia',
+    dialectDescription: 'Agricultural Latin American Spanish, clear radio broadcaster style',
+    samplePhrases: ['Pronóstico agroclimático para los productores', 'Alerta de déficit de presión de vapor'],
+  },
+  {
+    code: 'es-MX',
+    name: 'Español (México / Centroamérica)',
     region: 'Mexico / Bajío & Central Valley',
     dialectDescription: 'Agricultural Latin American Spanish, clear radio broadcaster style',
     samplePhrases: ['Pronóstico agroclimático para los productores', 'Alerta de déficit de presión de vapor'],
@@ -91,16 +98,6 @@ export class GeminiWeatherTranslator {
 
   public getLocale(): TranslationLocale {
     return this.locale;
-  }
-
-  public setLocale(localeCode: string): void {
-    const found = SUPPORTED_BROADCAST_LOCALES.find(l => l.code === localeCode);
-    if (found) {
-      this.locale = found;
-      if (this.isConnected) {
-        this.reconnect();
-      }
-    }
   }
 
   public setVolume(vol: number): void {
@@ -211,6 +208,29 @@ export class GeminiWeatherTranslator {
     this.ws.send(JSON.stringify({
       audio: base64Audio,
     }));
+  }
+
+  /**
+   * Dynamically update the target translation locale & system instruction prompt
+   */
+  public setLocale(localeCode: string): void {
+    const found = SUPPORTED_BROADCAST_LOCALES.find(
+      (l) => l.code === localeCode || l.code.startsWith(localeCode.slice(0, 2))
+    );
+    if (found) {
+      this.locale = found;
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        const systemInstruction = 
+          `You are the real-time weather broadcaster for region [${this.locale.name} - ${this.locale.region}]. Ingest the incoming English weather radio audio, translate it accurately, and speak it naturally in the local dialect (${this.locale.dialectDescription}). Speak in a clear, authoritative, broadcast-radio style. Ensure agronomic metrics such as temperature, wind speed, relative humidity, and evapotranspiration (ET0) are translated and contextualized clearly for farmers and classroom students.`;
+
+        this.ws.send(JSON.stringify({
+          type: 'init',
+          locale: this.locale.code,
+          targetLanguageCode: this.locale.code,
+          systemInstruction,
+        }));
+      }
+    }
   }
 
   private int16ToBase64(int16Array: Int16Array): string {

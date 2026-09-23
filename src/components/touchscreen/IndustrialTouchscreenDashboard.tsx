@@ -34,6 +34,7 @@ import { HorizontalProgressBar } from './HorizontalProgressBar';
 import { VerticalLiquidTank } from './VerticalLiquidTank';
 import { AtmosphericWidget } from './AtmosphericWidget';
 import { WeatherRadioPlayer } from './WeatherRadioPlayer';
+import { CognitiveDashboard } from './CognitiveDashboard';
 import { useLanguage } from '../../context/LanguageContext';
 
 export interface NodeConfiguration {
@@ -106,8 +107,8 @@ export const IndustrialTouchscreenDashboard: React.FC<IndustrialTouchscreenDashb
   // 2. Draft Configuration State for Form editing
   const [draftConfig, setDraftConfig] = useState<NodeConfiguration>(committedConfig);
 
-  // 3. UI View Mode: 'MONITOR' (Live Telemetry), 'ATMOSPHERIC' (Weather & ET0), 'WEATHER_RADIO' (Live Voice Radio), or 'CONFIGURE' (Setpoints & Recipe Form)
-  const [viewMode, setViewMode] = useState<'MONITOR' | 'ATMOSPHERIC' | 'WEATHER_RADIO' | 'CONFIGURE'>('MONITOR');
+  // 3. UI View Mode: 'MONITOR' (Live Telemetry), 'COGNITIVE_CORE' (Adaptive Multi-Agent Orb), 'ATMOSPHERIC' (Weather & ET0), 'WEATHER_RADIO' (Live Voice Radio), or 'CONFIGURE' (Setpoints & Recipe Form)
+  const [viewMode, setViewMode] = useState<'MONITOR' | 'COGNITIVE_CORE' | 'ATMOSPHERIC' | 'WEATHER_RADIO' | 'CONFIGURE'>('MONITOR');
 
   // 4. Live Telemetry States (reflecting active setpoints with subtle ADC noise)
   const [catalystTemp, setCatalystTemp] = useState(committedConfig.catalystTempTarget);
@@ -363,6 +364,18 @@ export const IndustrialTouchscreenDashboard: React.FC<IndustrialTouchscreenDashb
               TELEMETRY
             </button>
             <button
+              id="btn-tab-cognitive-core"
+              onClick={() => setViewMode('COGNITIVE_CORE')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                viewMode === 'COGNITIVE_CORE'
+                  ? 'bg-emerald-500 text-black shadow-md'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              COGNITIVE CORE
+            </button>
+            <button
               id="btn-tab-atmospheric"
               onClick={() => setViewMode('ATMOSPHERIC')}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
@@ -592,7 +605,20 @@ export const IndustrialTouchscreenDashboard: React.FC<IndustrialTouchscreenDashb
         </main>
       )}
 
-      {/* 2B. MODE B: ATMOSPHERIC TELEMETRY & OPEN-METEO WEATHER ENGINE */}
+      {/* 2B. MODE B: ADAPTIVE COGNITIVE CORE MULTI-AGENT INTERFACE */}
+      {viewMode === 'COGNITIVE_CORE' && (
+        <main className="w-full">
+          <CognitiveDashboard
+            nodeId={nodeId}
+            onActionTrigger={(action) => {
+              showToast(`COGNITIVE ACTION: ${action}`, 'info');
+              if (onActionTrigger) onActionTrigger(action);
+            }}
+          />
+        </main>
+      )}
+
+      {/* 2C. MODE C: ATMOSPHERIC TELEMETRY & OPEN-METEO WEATHER ENGINE */}
       {viewMode === 'ATMOSPHERIC' && (
         <main className="w-full space-y-4">
           <AtmosphericWidget

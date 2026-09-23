@@ -42,6 +42,7 @@ import {
 import { SoilPhGauge } from './SoilPhGauge';
 import { SmartAlertModal, SmartAlertItem, DEFAULT_ALERTS } from './SmartAlertModal';
 import { AgriNewsTicker } from './AgriNewsTicker';
+import { GlobalFarmHeatmap } from './GlobalFarmHeatmap';
 import { useNavigation } from '../../context/NavigationContext';
 import { useLanguage } from '../../context/LanguageContext';
 
@@ -121,7 +122,7 @@ export const FarmCommandDashboard: React.FC<FarmCommandDashboardProps> = ({
     }
   };
 
-  const [activeLayer, setActiveLayer] = useState<'HEATMAP' | 'TOPOGRAPHY' | 'SATELLITE'>('HEATMAP');
+  const [activeLayer, setActiveLayer] = useState<'GIS_GOOGLE_MAPS' | 'HEATMAP' | 'TOPOGRAPHY' | 'SATELLITE'>('GIS_GOOGLE_MAPS');
   const [showLayerMenu, setShowLayerMenu] = useState(false);
   const [showNodesLayer, setShowNodesLayer] = useState(true);
   const [showIrrigationLayer, setShowIrrigationLayer] = useState(true);
@@ -495,6 +496,18 @@ export const FarmCommandDashboard: React.FC<FarmCommandDashboardProps> = ({
             {/* Top Floating Layer Selector Bar */}
             <div className="absolute top-3 left-3 z-30 flex items-center gap-1.5 bg-slate-950/90 backdrop-blur-md p-1 rounded-xl border border-slate-700/80 shadow-xl text-xs">
               <button
+                id="btn-layer-gis-maps"
+                onClick={() => setActiveLayer('GIS_GOOGLE_MAPS')}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-semibold transition-all cursor-pointer ${
+                  activeLayer === 'GIS_GOOGLE_MAPS'
+                    ? 'bg-emerald-500 text-slate-950 font-bold shadow-md'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                }`}
+              >
+                <MapIcon className="w-3.5 h-3.5 text-emerald-400" />
+                <span>GIS Satellite (Google Maps)</span>
+              </button>
+              <button
                 id="btn-layer-heatmap"
                 onClick={() => setActiveLayer('HEATMAP')}
                 className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-semibold transition-all cursor-pointer ${
@@ -504,7 +517,7 @@ export const FarmCommandDashboard: React.FC<FarmCommandDashboardProps> = ({
                 }`}
               >
                 <Droplets className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Heatmap</span>
+                <span>2D Vector</span>
               </button>
               <button
                 id="btn-layer-topography"
@@ -528,11 +541,22 @@ export const FarmCommandDashboard: React.FC<FarmCommandDashboardProps> = ({
                 }`}
               >
                 <Layers className="w-3.5 h-3.5 text-amber-400" />
-                <span>Satellite (NDVI)</span>
+                <span>NDVI Optical</span>
               </button>
             </div>
 
             {/* Dynamic Map Canvas */}
+            {activeLayer === 'GIS_GOOGLE_MAPS' ? (
+              <div className="w-full h-full min-h-[420px] relative">
+                <GlobalFarmHeatmap
+                  height="100%"
+                  onNodeSelect={(node) => {
+                    const match = INITIAL_SENSORS.find(s => s.code.includes(node.code.replace('NX-', '')) || s.id === node.id.replace('node-0', ''));
+                    if (match) setSelectedSensor(match);
+                  }}
+                />
+              </div>
+            ) : (
             <div 
               className={`relative w-full h-full min-h-[380px] overflow-hidden transition-all duration-500 ${
                 activeLayer === 'HEATMAP' ? 'bg-[#081712]' :
@@ -677,8 +701,10 @@ export const FarmCommandDashboard: React.FC<FarmCommandDashboardProps> = ({
                 );
               })}
             </div>
+            )}
 
             {/* Map Controls (Right side of map, floating vertical button stack) */}
+            {activeLayer !== 'GIS_GOOGLE_MAPS' && (
             <div className="absolute top-4 right-4 z-30 flex flex-col gap-1.5 bg-slate-900/90 backdrop-blur-md p-1.5 rounded-xl border border-slate-700/80 shadow-2xl">
               <div className="relative">
                 <button
@@ -704,6 +730,19 @@ export const FarmCommandDashboard: React.FC<FarmCommandDashboardProps> = ({
 
                     <div className="space-y-1">
                       <button
+                        onClick={() => { setActiveLayer('GIS_GOOGLE_MAPS'); setShowLayerMenu(false); }}
+                        className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-colors ${
+                          (activeLayer as string) === 'GIS_GOOGLE_MAPS' ? 'bg-emerald-500/20 text-emerald-300 font-bold' : 'text-slate-300 hover:bg-slate-800'
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <MapIcon className="w-3.5 h-3.5 text-emerald-400" />
+                          GIS Google Maps Satellite
+                        </span>
+                        {(activeLayer as string) === 'GIS_GOOGLE_MAPS' && <Check className="w-3.5 h-3.5 text-emerald-400" />}
+                      </button>
+
+                      <button
                         onClick={() => { setActiveLayer('HEATMAP'); setShowLayerMenu(false); }}
                         className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-colors ${
                           activeLayer === 'HEATMAP' ? 'bg-emerald-500/20 text-emerald-300 font-bold' : 'text-slate-300 hover:bg-slate-800'
@@ -711,7 +750,7 @@ export const FarmCommandDashboard: React.FC<FarmCommandDashboardProps> = ({
                       >
                         <span className="flex items-center gap-2">
                           <Droplets className="w-3.5 h-3.5 text-emerald-400" />
-                          Soil Moisture Heatmap
+                          Soil Moisture Heatmap (2D)
                         </span>
                         {activeLayer === 'HEATMAP' && <Check className="w-3.5 h-3.5 text-emerald-400" />}
                       </button>
@@ -794,8 +833,10 @@ export const FarmCommandDashboard: React.FC<FarmCommandDashboardProps> = ({
                 <Minus className="w-4 h-4" />
               </button>
             </div>
+            )}
 
             {/* Dynamic Map Legend based on activeLayer */}
+            {activeLayer !== 'GIS_GOOGLE_MAPS' && (
             <div className="absolute bottom-4 left-4 z-30 bg-slate-950/90 backdrop-blur-md p-3 rounded-xl border border-slate-800 shadow-2xl text-xs max-w-[280px]">
               {activeLayer === 'HEATMAP' && (
                 <>
@@ -858,6 +899,7 @@ export const FarmCommandDashboard: React.FC<FarmCommandDashboardProps> = ({
                 </>
               )}
             </div>
+            )}
           </section>
 
           {/* Right Column: Fertigation Controller (40% width -> 5 cols on lg screen) */}
@@ -967,6 +1009,18 @@ export const FarmCommandDashboard: React.FC<FarmCommandDashboardProps> = ({
               {/* Top Floating Layer Selector Bar */}
               <div className="absolute top-3 left-3 z-30 flex items-center gap-1.5 bg-slate-950/90 backdrop-blur-md p-1 rounded-xl border border-slate-700/80 shadow-xl text-xs">
                 <button
+                  id="btn-gis-layer-google-maps"
+                  onClick={() => setActiveLayer('GIS_GOOGLE_MAPS')}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-semibold transition-all cursor-pointer ${
+                    activeLayer === 'GIS_GOOGLE_MAPS'
+                      ? 'bg-emerald-500 text-slate-950 font-bold shadow-md'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  }`}
+                >
+                  <MapIcon className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>GIS Satellite (Google Maps)</span>
+                </button>
+                <button
                   id="btn-gis-layer-heatmap"
                   onClick={() => setActiveLayer('HEATMAP')}
                   className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-semibold transition-all cursor-pointer ${
@@ -976,7 +1030,7 @@ export const FarmCommandDashboard: React.FC<FarmCommandDashboardProps> = ({
                   }`}
                 >
                   <Droplets className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Heatmap</span>
+                  <span>2D Vector</span>
                 </button>
                 <button
                   id="btn-gis-layer-topography"
@@ -1000,18 +1054,29 @@ export const FarmCommandDashboard: React.FC<FarmCommandDashboardProps> = ({
                   }`}
                 >
                   <Layers className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Satellite (NDVI)</span>
+                  <span>NDVI Optical</span>
                 </button>
               </div>
 
-              <div 
-                className={`relative w-full h-full overflow-hidden transition-all duration-500 ${
-                  activeLayer === 'HEATMAP' ? 'bg-[#081712]' :
-                  activeLayer === 'TOPOGRAPHY' ? 'bg-[#07131e]' :
-                  'bg-[#0d170f]'
-                }`}
-                style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'center center' }}
-              >
+              {activeLayer === 'GIS_GOOGLE_MAPS' ? (
+                <div className="w-full h-full relative">
+                  <GlobalFarmHeatmap
+                    height="100%"
+                    onNodeSelect={(node) => {
+                      const match = INITIAL_SENSORS.find(s => s.code.includes(node.code.replace('NX-', '')) || s.id === node.id.replace('node-0', ''));
+                      if (match) setSelectedSensor(match);
+                    }}
+                  />
+                </div>
+              ) : (
+                <div 
+                  className={`relative w-full h-full overflow-hidden transition-all duration-500 ${
+                    activeLayer === 'HEATMAP' ? 'bg-[#081712]' :
+                    activeLayer === 'TOPOGRAPHY' ? 'bg-[#07131e]' :
+                    'bg-[#0d170f]'
+                  }`}
+                  style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'center center' }}
+                >
                 <div className={`absolute inset-0 transition-opacity duration-500 ${
                   activeLayer === 'HEATMAP' ? 'opacity-20 bg-[radial-gradient(#10b981_1.5px,transparent_1.5px)] [background-size:20px_20px]' :
                   activeLayer === 'TOPOGRAPHY' ? 'opacity-25 bg-[linear-gradient(to_right,#0284c7_1px,transparent_1px),linear-gradient(to_bottom,#0284c7_1px,transparent_1px)] [background-size:24px_24px]' :
@@ -1109,12 +1174,14 @@ export const FarmCommandDashboard: React.FC<FarmCommandDashboardProps> = ({
                   );
                 })}
               </div>
+              )}
 
               {/* Floating Controls */}
+              {activeLayer !== 'GIS_GOOGLE_MAPS' && (
               <div className="absolute top-4 right-4 z-30 flex flex-col gap-1.5 bg-slate-900/90 backdrop-blur-md p-1.5 rounded-xl border border-slate-700/80 shadow-2xl">
                 <button
                   id="btn-gis-toggle-layer"
-                  onClick={() => setActiveLayer(l => l === 'HEATMAP' ? 'TOPOGRAPHY' : l === 'TOPOGRAPHY' ? 'SATELLITE' : 'HEATMAP')}
+                  onClick={() => setActiveLayer(l => l === 'GIS_GOOGLE_MAPS' ? 'HEATMAP' : l === 'HEATMAP' ? 'TOPOGRAPHY' : l === 'TOPOGRAPHY' ? 'SATELLITE' : 'GIS_GOOGLE_MAPS')}
                   className="p-2 hover:bg-slate-800 text-slate-300 hover:text-emerald-400 rounded transition-colors cursor-pointer"
                   title={`Toggle Base Layer (Current: ${activeLayer})`}
                 >
@@ -1146,8 +1213,10 @@ export const FarmCommandDashboard: React.FC<FarmCommandDashboardProps> = ({
                   <Minus className="w-4 h-4" />
                 </button>
               </div>
+              )}
 
               {/* Dynamic Map Legend for GIS View */}
+              {activeLayer !== 'GIS_GOOGLE_MAPS' && (
               <div className="absolute bottom-4 left-4 z-30 bg-slate-950/90 backdrop-blur-md p-3 rounded-xl border border-slate-800 shadow-2xl text-xs max-w-[280px]">
                 {activeLayer === 'HEATMAP' && (
                   <>
@@ -1204,6 +1273,7 @@ export const FarmCommandDashboard: React.FC<FarmCommandDashboardProps> = ({
                   </>
                 )}
               </div>
+              )}
             </div>
 
             {/* Sensor Array Details List */}
@@ -1556,7 +1626,7 @@ export const FarmCommandDashboard: React.FC<FarmCommandDashboardProps> = ({
                   )}
                 </div>
                 <div className="text-slate-700 text-xs">
-                  {primaryAlert.description}
+                  {primaryAlert.summary}
                 </div>
                 {primaryAlert.executionProgress !== undefined && primaryAlert.status === 'EXECUTING' && (
                   <div className="w-full bg-slate-200 rounded-full h-1.5 mt-2 overflow-hidden">
@@ -1678,9 +1748,9 @@ export const FarmCommandDashboard: React.FC<FarmCommandDashboardProps> = ({
         onClose={() => setIsAlertModalOpen(false)}
         alerts={alerts}
         onExecuteNow={handleExecuteNow}
-        onSnooze={handleSnoozeAlert}
-        onDismiss={handleDismissAlert}
-        onApprove={handleApproveAlert}
+        onSnoozeAlert={handleSnoozeAlert}
+        onDismissAlert={handleDismissAlert}
+        onApproveAlert={handleApproveAlert}
         onUpdateAlert={handleUpdateAlert}
         onAddAlert={handleAddAlert}
       />

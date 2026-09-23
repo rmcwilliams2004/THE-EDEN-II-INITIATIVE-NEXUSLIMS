@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export type NavigationTab = 
+  | 'LAUNCHPAD'
   | 'FEED'
   | 'FARM_COMMAND'
   | 'TOUCHSCREEN'
@@ -26,6 +27,7 @@ export interface NavItemConfig {
 }
 
 export const NAV_ITEMS: NavItemConfig[] = [
+  { id: 'LAUNCHPAD', label: 'Launchpad Grid', shortLabel: 'Launchpad', group: 'primary' },
   { id: 'FEED', label: 'Sister-Link Feed', shortLabel: 'Feed', group: 'primary' },
   { id: 'DASHBOARD', label: 'Live Telemetry & SIL-3', shortLabel: 'Telemetry', group: 'primary' },
   { id: 'KIOSK', label: '20-ft Sister Kiosk (Voice/NFC)', shortLabel: 'Sister Kiosk', group: 'primary' },
@@ -54,9 +56,26 @@ const NavigationContext = createContext<NavigationContextType | undefined>(undef
 
 export const NavigationProvider: React.FC<{ children: ReactNode; initialTab?: NavigationTab }> = ({ 
   children, 
-  initialTab = 'FEED' 
+  initialTab = 'LAUNCHPAD' 
 }) => {
-  const [activeTab, setActiveTab] = useState<NavigationTab>(initialTab);
+  const [activeTab, setActiveTab] = useState<NavigationTab>(() => {
+    if (typeof window !== 'undefined' && window.location.hash) {
+      const hash = window.location.hash.replace('#', '').toUpperCase() as NavigationTab;
+      if (NAV_ITEMS.some(item => item.id === hash) || hash === 'MAP' || hash === 'ANALYTICS') {
+        return hash;
+      }
+    }
+    // Check saved default tab preference from localStorage
+    try {
+      const savedDefault = localStorage.getItem('nexuslims_default_tab_pref') as NavigationTab;
+      if (savedDefault && NAV_ITEMS.some(item => item.id === savedDefault)) {
+        return savedDefault;
+      }
+    } catch {
+      // Fallback
+    }
+    return initialTab;
+  });
 
   // Sync with browser URL hash or storage if needed
   useEffect(() => {

@@ -207,7 +207,7 @@ export const EdgeControllerPanel = () => {
           </div>
           <div className="mt-3 pt-2 border-t border-slate-800 text-[10px] text-slate-400 flex justify-between">
             <span>Acid Scrubber:</span>
-            <span className="font-mono text-blue-400">{nh3.scrubberActive ? 'ACTIVE BOOST' : 'IDLE CIRC'}</span>
+            <span className="font-mono text-blue-400">{('scrubberActive' in nh3 && nh3.scrubberActive) || nh3.scrubberFanRpm > 0 ? 'ACTIVE BOOST' : 'IDLE CIRC'}</span>
           </div>
         </div>
 

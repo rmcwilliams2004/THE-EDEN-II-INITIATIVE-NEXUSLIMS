@@ -402,6 +402,14 @@ export class WeatherAudioStreamer {
   }
 
   /**
+   * Reconnect streamer
+   */
+  public async reconnect(): Promise<void> {
+    this.stop();
+    await this.start();
+  }
+
+  /**
    * Stop streamer
    */
   public stop(): void {

@@ -103,6 +103,15 @@ export class WeatherBroadcastFailsafe {
   }
 
   /**
+   * Directly ingest raw PCM chunk from hardware Line-In or WebRTC audio
+   */
+  public handleRawStreamChunk(chunk: Int16Array): void {
+    this.ringBuffer.push(chunk);
+    this.consecutiveLiveFrames++;
+    this.onAudioOutputListeners.forEach(fn => fn(chunk, false));
+  }
+
+  /**
    * Start the watchdog supervisor
    */
   public start(): void {

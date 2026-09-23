@@ -75,6 +75,14 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({ onOpenUserManual }) => {
         icon: LayoutGrid,
         items: [
           {
+            id: 'LAUNCHPAD',
+            label: 'Launchpad Grid',
+            shortLabel: 'Launchpad',
+            desc: 'Overview block-menu, direct tactical routing & live weather radio',
+            icon: Layers,
+            badge: 'Home',
+          },
+          {
             id: 'FEED',
             label: 'Sister-Link Feed',
             shortLabel: 'Feed',

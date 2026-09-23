@@ -38,53 +38,95 @@ async function startServer() {
 
   wss.on("connection", async (clientWs: WebSocket) => {
     let session: any = null;
-    let targetLangCode = "en"; // Default
+    let targetLangCode = "en-US";
+
+    const createLiveSession = async (systemPrompt: string) => {
+      if (session) {
+        try {
+          // Clean up previous live session
+          session.close?.();
+        } catch (e) {
+          // Ignore close errors
+        }
+        session = null;
+      }
+
+      try {
+        session = await ai.live.connect({
+          model: "gemini-3.1-flash-live-preview",
+          config: {
+            responseModalities: [Modality.AUDIO],
+            systemInstruction: systemPrompt,
+          },
+          callbacks: {
+            onmessage: (message: LiveServerMessage) => {
+              const audio = message.serverContent?.modelTurn?.parts[0]?.inlineData?.data;
+              if (audio && clientWs.readyState === WebSocket.OPEN) {
+                clientWs.send(JSON.stringify({ audio }));
+              }
+              const textChunk = message.serverContent?.modelTurn?.parts[0]?.text;
+              if (textChunk && clientWs.readyState === WebSocket.OPEN) {
+                clientWs.send(JSON.stringify({ transcript: textChunk }));
+              }
+              if (message.serverContent?.interrupted && clientWs.readyState === WebSocket.OPEN) {
+                clientWs.send(JSON.stringify({ interrupted: true }));
+              }
+            },
+          },
+        });
+        return session;
+      } catch (err: any) {
+        console.error("Live API Connection Error:", err.message);
+        if (clientWs.readyState === WebSocket.OPEN) {
+          clientWs.send(JSON.stringify({ error: `Failed to connect Live Agent: ${err.message}` }));
+        }
+        return null;
+      }
+    };
 
     clientWs.on("message", async (data: any) => {
-      const msg = JSON.parse(data.toString());
-      
-      // Allow the client to initialize with a target language & localized system instruction
-      if (msg.type === 'init') {
-        const locale = msg.locale || msg.targetLanguageCode || "en-US";
-        const systemPrompt = msg.systemInstruction || 
-          `CRITICAL DIRECTIVE: You are physically located in region [${locale}]. You must instantly adapt all spoken audio responses, dialect comprehension, and idiom usage to the primary language of this locale. Do not speak English unless explicitly addressed in English.\n\nYou are a real-time agricultural translator and agronomist assistant for the Eden II modular container system. Translate everything accurately or answer agronomy questions in the locale language.`;
+      try {
+        const msg = JSON.parse(data.toString());
         
-        try {
-          session = await ai.live.connect({
-            model: "gemini-3.1-flash-live-preview",
-            config: {
-              responseModalities: [Modality.AUDIO],
-              systemInstruction: systemPrompt,
-            },
-            callbacks: {
-              onmessage: (message: LiveServerMessage) => {
-                const audio = message.serverContent?.modelTurn?.parts[0]?.inlineData?.data;
-                if (audio && clientWs.readyState === WebSocket.OPEN) {
-                  clientWs.send(JSON.stringify({ audio }));
-                }
-                if (message.serverContent?.interrupted && clientWs.readyState === WebSocket.OPEN) {
-                  clientWs.send(JSON.stringify({ interrupted: true }));
-                }
-              },
-            },
-          });
-        } catch (err) {
-          console.error("Live API Connection Error:", err);
-          if (clientWs.readyState === WebSocket.OPEN) {
-            clientWs.send(JSON.stringify({ error: "Failed to connect to AI assistant" }));
+        // Handle init or switch_persona
+        if (msg.type === 'init' || msg.type === 'switch_persona') {
+          const locale = msg.locale || msg.targetLanguageCode || "en-US";
+          targetLangCode = locale;
+          const systemPrompt = msg.systemInstruction || 
+            `You are the cognitive multi-agent interface for the NexusLIMS Eden II agricultural system. Respond clearly in broadcast style for region [${locale}].`;
+          
+          await createLiveSession(systemPrompt);
+        } else if (msg.type === 'text_input') {
+          if (!session) {
+            const systemPrompt = msg.systemInstruction || `You are the cognitive assistant for NexusLIMS. Respond concisely and clearly.`;
+            await createLiveSession(systemPrompt);
           }
+          if (session) {
+            await session.send({
+              clientContent: {
+                turns: [{
+                  role: 'user',
+                  parts: [{ text: msg.text }]
+                }],
+                turnComplete: true
+              }
+            });
+          }
+        } else if (msg.audio && session) {
+          // Send audio frame to Gemini Live
+          session.sendRealtimeInput({
+            audio: { data: msg.audio, mimeType: "audio/pcm;rate=16000" },
+          }).catch((err: any) => console.error("Realtime input err:", err.message));
         }
-      } else if (msg.audio && session) {
-        // Send audio frame to Gemini
-        session.sendRealtimeInput({
-          audio: { data: msg.audio, mimeType: "audio/pcm;rate=16000" },
-        }).catch((err: any) => console.error("Realtime input err:", err));
+      } catch (err: any) {
+        console.error("Error processing WebSocket message:", err.message);
       }
     });
 
     clientWs.on("close", () => {
       if (session) {
-        // session.close() is typically not explicitly needed if the stream breaks, but you can clean up
+        try { session.close?.(); } catch (e) {}
+        session = null;
       }
     });
   });
@@ -202,6 +244,84 @@ async function startServer() {
     } catch (err: any) {
       console.error(err);
       res.status(500).json({ error: err.message });
+    }
+  });
+
+  // Gemini Natural Voice Synthesis (Text-to-Speech) for Weather Radio Broadcasts
+  app.post('/api/weather/natural-voice', async (req, res) => {
+    try {
+      const { text, locale = 'en-US', voiceName = 'Kore', speed = 1.0, warmth = 'soft' } = req.body;
+      if (!text) {
+        return res.status(400).json({ error: 'Text prompt is required.' });
+      }
+
+      // Locale-specific natural dialect and pronunciation styling
+      const languageDescriptions: Record<string, string> = {
+        'sw-KE': 'in gentle, soothing Kenyan Swahili (Kiswahili)',
+        'es-CO': 'in a gentle, warm Latin American Spanish',
+        'es-MX': 'in a warm, friendly Mexican Spanish',
+        'fr-SN': 'in an elegant, calm West African French',
+        'pt-BR': 'in a soft, friendly Brazilian Portuguese',
+        'en-US': 'in a gentle, natural, warm human tone',
+      };
+
+      const langContext = languageDescriptions[locale] || `in a soft, natural voice for ${locale}`;
+      const prompt = `Say in a warm, gentle, and natural human tone ${langContext}: ${text}`;
+
+      const validVoices = ['Kore', 'Puck', 'Charon', 'Fenrir', 'Zephyr', 'Aoede'];
+      const targetVoice = validVoices.includes(voiceName) ? voiceName : 'Kore';
+
+      let audioData: string | null = null;
+      let mimeType = 'audio/pcm;rate=24000';
+
+      // Gemini 3.1 Flash TTS model call (no systemInstruction; instruction is inline in prompt)
+      try {
+        const response = await ai.models.generateContent({
+          model: 'gemini-3.1-flash-tts-preview',
+          contents: [{ parts: [{ text: prompt }] }],
+          config: {
+            responseModalities: [Modality.AUDIO],
+            speechConfig: {
+              voiceConfig: {
+                prebuiltVoiceConfig: {
+                  voiceName: targetVoice,
+                }
+              }
+            }
+          }
+        });
+
+        const part = response.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData?.data);
+        if (part?.inlineData?.data) {
+          audioData = part.inlineData.data;
+          mimeType = part.inlineData.mimeType || mimeType;
+        }
+      } catch (ttsErr: any) {
+        console.warn('Gemini 3.1 TTS model notice:', ttsErr?.message);
+      }
+
+      if (!audioData) {
+        return res.status(200).json({
+          success: false,
+          fallbackToBrowser: true,
+          message: 'Audio model fallback to enhanced browser synthesis with soft modulation.',
+          text,
+          locale,
+        });
+      }
+
+      return res.json({
+        success: true,
+        audioBase64: audioData,
+        mimeType,
+        sampleRate: 24000,
+        voiceName: targetVoice,
+        locale,
+        text,
+      });
+    } catch (err: any) {
+      console.error('Natural Voice TTS Endpoint Error:', err);
+      res.status(500).json({ error: err.message, fallbackToBrowser: true });
     }
   });
 

@@ -1,11 +1,13 @@
 import { useState, useRef, useCallback } from 'react';
+import type { CropIconKey } from '../components/IconCropSelector';
 
 export interface KioskParsedCommand {
-  ui_icon: 'maize' | 'coffee' | 'wheat' | 'corn' | 'soybean' | 'water_drop' | 'gallon_jug';
+  ui_icon: CropIconKey | 'water_drop' | 'gallon_jug';
   ui_fill_level: number;
   valve_status: 'locked' | 'ready' | 'dispensing' | 'complete' | 'emergency_stop';
   speaker_lang?: string;
   farmer_name?: string;
+  eco_credits_earned?: number;
 }
 
 export function useGeminiLive() {

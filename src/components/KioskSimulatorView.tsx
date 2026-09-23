@@ -2,17 +2,20 @@ import React, { useState } from 'react';
 import { 
   CreditCard, Sparkles, CheckCircle2, RotateCcw, Lock, 
   Droplet, Wheat, Coffee, Sprout, Trees, Mic, Radio, Volume2, 
-  AlertTriangle, ShieldCheck, MapPin, Globe, Apple, Flower2, Leaf 
+  AlertTriangle, ShieldCheck, MapPin, Globe, Apple, Flower2, Leaf,
+  Cpu, LayoutGrid, Sun, Moon
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useGeminiLive } from '../hooks/useGeminiLive';
 import { LanguageSelector } from './LanguageSelector';
+import { CognitiveDashboard } from './touchscreen/CognitiveDashboard';
 import { ModeBFoliarDispenser } from '../../apps/kiosk-ui/src/components/ModeBFoliarDispenser';
 
 export type CropType = 'maize' | 'coffee' | 'wheat' | 'soybean' | 'potatoes' | 'cassava' | 'rice' | 'sugarcane';
 
 export const KioskSimulatorView: React.FC = () => {
   const { t, locale, localeProfile, gpsCoords } = useLanguage();
+  const [activeKioskMode, setActiveKioskMode] = useState<'COGNITIVE_CORE' | 'CLASSIC_DISPENSER'>('COGNITIVE_CORE');
   const [selectedCrop, setSelectedCrop] = useState<CropType>('maize');
   const [fillVolume, setFillVolume] = useState<number>(20);
   const [valveStatus, setValveStatus] = useState<'locked' | 'ready' | 'dispensing' | 'complete'>('locked');
@@ -139,58 +142,64 @@ export const KioskSimulatorView: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header Banner with Zero-Touch Location Sync */}
+      {/* Header Banner with Zero-Touch Location Sync & Mode Switcher */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/90 p-4 rounded-2xl border border-slate-800 shadow-lg">
         <div className="flex items-center gap-3">
           <div className="w-3.5 h-3.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
           <div>
             <h2 className="text-sm sm:text-base font-bold text-white uppercase tracking-wider font-mono flex items-center gap-2">
-              <span>{t('kiosk_title', '20-FT SISTER KIOSK • OUTDOOR HIGH-CONTRAST INTERFACE')}</span>
+              <span>{t('kiosk_title', '20-FT SISTER KIOSK • COGNITIVE HMI INTERFACE')}</span>
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              {t('kiosk_subtitle', 'Zero-literacy voice & icon kiosk for smallholder foliar fertilizer dispensing (1.0% N verified).')}
+              {t('kiosk_subtitle', 'Adaptive multi-agent cognitive core with ambient solar daylighting & Gemini Live voice integration.')}
             </p>
           </div>
         </div>
 
-        {/* Quick Language Selector & NFC Simulation Bar */}
-        <div className="flex flex-wrap items-center gap-2">
-          <LanguageSelector compact />
+        {/* Mode Switcher Tabs */}
+        <div className="flex items-center gap-2">
+          <div className="bg-slate-950 p-1 rounded-xl border border-slate-800 flex items-center gap-1">
+            <button
+              id="btn-tab-cognitive-core"
+              onClick={() => setActiveKioskMode('COGNITIVE_CORE')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                activeKioskMode === 'COGNITIVE_CORE'
+                  ? 'bg-emerald-500 text-slate-950 shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Cpu className="w-3.5 h-3.5" />
+              COGNITIVE CORE
+            </button>
+            <button
+              id="btn-tab-classic-dispenser"
+              onClick={() => setActiveKioskMode('CLASSIC_DISPENSER')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                activeKioskMode === 'CLASSIC_DISPENSER'
+                  ? 'bg-amber-500 text-slate-950 shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              MODE B DISPENSER
+            </button>
+          </div>
 
-          {authenticatedFarmer ? (
-            <div className="flex items-center gap-2 bg-emerald-950 border border-emerald-500/60 px-3 py-1.5 rounded-xl text-xs font-mono text-emerald-300 shadow-md">
-              <CreditCard className="w-4 h-4 text-emerald-400" />
-              <span className="font-bold text-white">{authenticatedFarmer.name}</span>
-              <span className="text-[10px] text-emerald-400">({authenticatedFarmer.credits} {t('credits_available', 'credits')})</span>
-              <button 
-                onClick={handleReset} 
-                className="ml-2 text-slate-400 hover:text-white cursor-pointer"
-                title="Reset session"
-              >
-                ✕
-              </button>
-            </div>
-          ) : (
-            <div className="flex gap-2">
-              <button
-                onClick={() => simulateNfcTap('JUMA')}
-                className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-mono font-bold text-amber-400 transition-colors cursor-pointer"
-              >
-                NFC: Juma (20L)
-              </button>
-              <button
-                onClick={() => simulateNfcTap('MARIA')}
-                className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-mono font-bold text-amber-400 transition-colors cursor-pointer"
-              >
-                NFC: María (15L)
-              </button>
-            </div>
-          )}
+          <LanguageSelector compact />
         </div>
       </div>
 
-      {/* Main Kiosk Screen */}
-      <div className="bg-slate-950 border-2 border-slate-800 rounded-3xl p-5 md:p-8 shadow-2xl">
+      {/* Render Cognitive Core Dashboard or Classic Dispenser Screen */}
+      {activeKioskMode === 'COGNITIVE_CORE' ? (
+        <CognitiveDashboard
+          nodeId="EDEN II NODE #042"
+          onActionTrigger={(action) => {
+            console.log(`Cognitive HMI Triggered Action: ${action}`);
+          }}
+        />
+      ) : (
+        /* Main Classic Kiosk Screen */
+        <div className="bg-slate-950 border-2 border-slate-800 rounded-3xl p-5 md:p-8 shadow-2xl">
         {valveStatus === 'complete' ? (
           <div className="bg-emerald-950/80 border-2 border-emerald-500 rounded-2xl p-8 flex flex-col items-center gap-4 text-center">
             <CheckCircle2 className="w-20 h-20 text-emerald-400 animate-bounce" />
@@ -342,6 +351,7 @@ export const KioskSimulatorView: React.FC = () => {
           </div>
         )}
       </div>
+      )}
 
       {/* Mode B Batch Foliar Dilution Station (SIL-3 Governed) */}
       <ModeBFoliarDispenser />

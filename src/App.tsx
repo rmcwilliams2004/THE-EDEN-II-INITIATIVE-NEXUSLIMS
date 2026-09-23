@@ -21,8 +21,11 @@ import { MarketIntelligenceNews } from './components/MarketIntelligenceNews';
 import { Sidebar } from './components/Sidebar';
 import { TopNavBar } from './components/TopNavBar';
 import { OnlineUserManualModal } from './components/OnlineUserManualModal';
+import { LaunchpadLandingPage } from './components/navigation/LaunchpadLandingPage';
 import { NavigationProvider, useNavigation, NavigationTab } from './context/NavigationContext';
+import { NavigationPreferenceProvider } from './context/NavigationPreferenceContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
+import { AmbientThemeProvider } from './context/AmbientThemeContext';
 import { LanguageSelector } from './components/LanguageSelector';
 import { Bell, Plus, Radio, Archive, MessageSquare, Image, Sparkles, X, CheckCircle2 } from 'lucide-react';
 import { io } from 'socket.io-client';
@@ -113,7 +116,7 @@ function AppContent() {
   }, []);
 
   return (
-    <div className="h-screen w-screen p-4 gap-4 flex flex-col overflow-hidden bg-[#05070a] text-slate-200 font-sans selection:bg-emerald-500/30">
+    <div className="h-screen w-screen p-4 gap-4 flex flex-col overflow-hidden bg-[#676c76] text-slate-200 font-sans selection:bg-emerald-500/30" style={{ backgroundColor: '#676c76' }}>
       <header className="h-16 flex items-center justify-between px-6 glass shrink-0">
         <div className="flex items-center gap-4">
           <div className="w-8 h-8 bg-emerald-500 rounded flex items-center justify-center font-bold text-black shadow-[0_0_15px_rgba(16,185,129,0.2)]">
@@ -347,6 +350,12 @@ function AppContent() {
             </div>
           )}
 
+          {activeTab === 'LAUNCHPAD' && (
+            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+              <LaunchpadLandingPage />
+            </div>
+          )}
+
           {(activeTab === 'FARM_COMMAND' || activeTab === 'MAP' || activeTab === 'ANALYTICS' || activeTab === 'SETTINGS') && (
             <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
               <FarmCommandDashboard />
@@ -497,9 +506,13 @@ function AppContent() {
 export default function App() {
   return (
     <LanguageProvider>
-      <NavigationProvider>
-        <AppContent />
-      </NavigationProvider>
+      <AmbientThemeProvider>
+        <NavigationProvider>
+          <NavigationPreferenceProvider>
+            <AppContent />
+          </NavigationPreferenceProvider>
+        </NavigationProvider>
+      </AmbientThemeProvider>
     </LanguageProvider>
   );
 }

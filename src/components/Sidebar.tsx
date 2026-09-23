@@ -36,6 +36,7 @@ export const Sidebar: React.FC = () => {
 
   const getNavIcon = (id: NavigationTab) => {
     switch (id) {
+      case 'LAUNCHPAD': return <Layers className="w-4 h-4 text-emerald-400" />;
       case 'FEED': return <Users className="w-4 h-4 text-emerald-400" />;
       case 'DASHBOARD': return <LayoutGrid className="w-4 h-4 text-emerald-400" />;
       case 'KIOSK': return <Radio className="w-4 h-4 text-emerald-400" />;
